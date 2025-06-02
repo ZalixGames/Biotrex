@@ -1,0 +1,3100 @@
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitorex - BTX Mining Simulator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Custom Styles -->
+    <style>
+        /* Applying a dark green theme based on the image - Enhanced */
+        :root {
+            --primary-bg: #121212; /* Very dark background */
+            --card-bg: #1a1a1a; /* Slightly lighter card background */
+            --accent-green: #32CD32; /* Vibrant green accent */
+            --accent-blue: #3b82f6; /* Keep original blue for some elements */
+            --text-light: #e0e0e0; /* Lighter text for readability */
+            --text-muted: #b0b0b0; /* Muted text */
+            --text-dark: #4b5563; /* Dark text (less used in dark theme) */
+            --border-color: #2a2a2a; /* Darker border color */
+            --input-bg: #212121; /* Darker input background */
+            --input-border: #3a3a3a; /* Darker input border */
+
+            /* Coin Colors */
+            --btc-yellow: #F7931A; /* Bitcoin color */
+            --eth-blue: #627EEA; /* Ethereum color */
+            --usdt-green: #50AF95; /* USDT color */
+            --btx-accent: var(--accent-blue); /* BTX color */
+
+             /* Spin Wheel Colors */
+             --spin-red: #EF4444;
+             --spin-amber: #F59E0B;
+             --spin-emerald: #10B981;
+             --spin-blue: #3B82F6;
+             --spin-violet: #A78BFA;
+             --spin-pink: #EC4899;
+        }
+
+        body {
+            font-family: sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            line-height: 1.6; /* Improved readability */
+        }
+
+        .dark body {
+             background-color: var(--primary-bg);
+             color: var(--text-light);
+        }
+
+        /* Tailwnd overrides for themed colors */
+        .bg-gray-900 { background-color: var(--primary-bg); }
+        .bg-gray-800 { background-color: var(--card-bg); }
+        .bg-gray-700 { background-color: var(--input-bg); } /* Used for inputs, list backgrounds etc */
+        .bg-gray-600 { background-color: #4b5563; } /* Less used */
+        .border-gray-700 { border-color: var(--border-color); }
+        .text-gray-100 { color: var(--text-light); }
+        .text-gray-300 { color: var(--text-muted); }
+        .text-gray-400 { color: #9ca3af; } /* Keep default for placeholders/hints */
+        .text-gray-500 { color: #6b7280; } /* Keep default for icons */
+
+        .text-blue-500 { color: var(--accent-blue); }
+        .text-green-500 { color: var(--accent-green); }
+        .bg-blue-600 { background-color: var(--accent-blue); }
+        .hover\:bg-blue-700:hover { background-color: #2563eb; } /* Slightly darker blue */
+         .bg-green-600 { background-color: var(--accent-green); }
+         .hover\:bg-green-700:hover { background-color: #228B22; /* Darker green */ }
+
+
+        /* --- Enhanced Bottom Navigation Styles --- */
+         .bottom-nav {
+             position: fixed;
+             bottom: 0;
+             left: 0;
+             right: 0;
+             background-color: var(--card-bg); /* Use card background for nav */
+             border-top: 1px solid var(--border-color);
+             box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
+             display: flex;
+             z-index: 50; /* High z-index to stay on top */
+             padding: 0.25rem 0; /* Reduced vertical padding */
+         }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0; /* Consistent padding */
+            text-align: center;
+            color: var(--text-muted);
+             text-decoration: none;
+             transition: color 0.2s ease-in-out;
+        }
+         .nav-item:hover {
+             color: var(--text-light);
+         }
+         .nav-item.active {
+             color: var(--accent-green); /* Active color */
+         }
+
+         /* Optional: Add an indicator for the active item */
+         .nav-item.active::after {
+             content: '';
+             display: block;
+             width: 60%; /* Line width */
+             height: 2px; /* Line thickness */
+             background-color: var(--accent-green);
+             margin-top: 4px; /* Space between text and line */
+             border-radius: 1px;
+         }
+
+
+         .nav-item svg, .nav-item i {
+            font-size: 1.3rem; /* Slightly smaller icons */
+            margin-bottom: 0.25rem; /* Space between icon and text */
+         }
+         .nav-item span {
+             font-size: 0.7rem; /* Adjust text size */
+             line-height: 1;
+             font-weight: 500;
+         }
+         /* Adjust padding and sizes for smaller screens if needed */
+         @media (max-width: 480px) {
+             .nav-item {
+                 padding: 0.3rem 0; /* Slightly less padding on small screens */
+             }
+             .nav-item svg, .nav-item i {
+                  font-size: 1.2rem;
+             }
+              .nav-item span {
+                  font-size: 0.65rem;
+              }
+         }
+        /* --- End Enhanced Bottom Navigation Styles --- */
+
+
+        /* --- Mining Circle Enhancement --- */
+        .mining-circle-container {
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             position: relative;
+             width: 180px; /* Slightly larger */
+             height: 180px; /* Slightly larger */
+        }
+         .mining-circle {
+            width: 100%;
+            height: 100%;
+            border: 10px solid; /* Thicker border */
+            border-color: var(--accent-green) transparent transparent transparent;
+            border-radius: 50%;
+             transform: rotate(45deg);
+             opacity: 0.9;
+             box-sizing: border-box;
+             box-shadow: 0 0 20px rgba(50, 205, 50, 0.4); /* Green glow effect */
+        }
+        .mining-icon {
+             position: absolute;
+             font-size: 5rem; /* Larger icon */
+             color: var(--accent-green);
+             z-index: 1;
+             text-shadow: 0 0 10px rgba(50, 205, 50, 0.5); /* Icon glow */
+        }
+         /* --- End Mining Circle Enhancement --- */
+
+
+         /* SweetAlert2 Dark Mode */
+         .swal2-popup {
+             background-color: var(--card-bg) !important;
+             color: var(--text-light) !important;
+             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5) !important;
+         }
+         .swal2-title {
+             color: var(--text-light) !important;
+             font-size: 1.5rem !important;
+         }
+         .swal2-html-container {
+              color: var(--text-muted) !important;
+             font-size: 1rem !important;
+         }
+         .swal2-confirm, .swal2-cancel {
+             padding: 0.75rem 1.5rem !important;
+             border-radius: 0.5rem !important;
+             font-size: 1rem !important;
+             font-weight: 600 !important;
+             transition: all 0.2s ease-in-out !important;
+         }
+         .swal2-confirm {
+            background-color: var(--accent-green) !important;
+            color: var(--primary-bg) !important; /* Text color on green */
+         }
+          .swal2-cancel {
+             background-color: transparent !important; /* transparent */
+             color: var(--text-muted) !important;
+             border: 1px solid var(--border-color) !important;
+          }
+          .swal2-confirm:hover {
+               background-color: #228B22 !important; /* Darker green */
+          }
+           .swal2-cancel:hover {
+                background-color: var(--input-bg) !important; /* Slight hover bg */
+           }
+          /* Ensure SweetAlert2 close button is visible in dark mode */
+         .swal2-close {
+             color: var(--text-muted) !important;
+              top: 10px !important;
+              right: 10px !important;
+               font-size: 1.5rem !important;
+         }
+          .swal2-icon.swal2-success [class^=swal2-success-line][class$=long] { background-color: var(--accent-green) !important; }
+          .swal2-icon.swal2-success [class^=swal2-success-line][class$=short] { background-color: var(--accent-green) !important; }
+          .swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(50, 205, 50, 0.3) !important; }
+           .swal2-icon.swal2-warning { border-color: #F59E0B !important; color: #F59E0B !important; }
+           .swal2-icon.swal2-error { border-color: #EF4444 !important; color: #EF4444 !important; }
+           .swal2-icon.swal2-info { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; }
+
+
+         /* Dark Mode Toggle Styles (already themed, just ensure visual consistency) */
+         input:checked ~ .dot {
+             transform: translateX(100%);
+             background-color: var(--accent-green);
+         }
+          input:checked ~ .block {
+              background-color: var(--accent-green);
+          }
+
+
+         /* --- Enhanced Spin Wheel Styles --- */
+         .wheel-container {
+             position: relative;
+             width: 280px; /* Adjusted size */
+             height: 280px;
+             margin: 20px auto;
+             border-radius: 50%;
+             overflow: hidden;
+             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             background-color: #282828; /* Dark background for container */
+         }
+         .wheel {
+             width: 100%;
+             height: 100%;
+             border-radius: 50%;
+             position: relative;
+             transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); /* Animation */
+              background: conic-gradient(
+                 var(--spin-red) 0deg 45deg,
+                 var(--spin-amber) 45deg 90deg,
+                 var(--spin-emerald) 90deg 135deg,
+                 var(--spin-blue) 135deg 180deg,
+                 var(--spin-violet) 180deg 225deg,
+                 var(--spin-pink) 225deg 270deg,
+                 var(--spin-amber) 270deg 315deg,
+                 var(--spin-emerald) 315deg 360deg
+             );
+              border: 5px solid var(--border-color); /* Border around wheel */
+         }
+
+         /* Styles for Spin Wheel Reward Labels */
+        .wheel-label {
+             position: absolute;
+             top: 50%;
+             left: 50%;
+             --radius: 100px; /* Distance from center to text anchor point (adjusted for wheel size) */
+             transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--radius));
+             transform-origin: 50% 50%;
+             font-size: 0.85rem; /* Slightly smaller text */
+             font-weight: bold;
+             color: white;
+             text-shadow: 1px 1px 3px rgba(0,0,0,0.7); /* More prominent text shadow */
+             white-space: nowrap;
+             pointer-events: none;
+        }
+         .wheel-label span {
+            display: block;
+            transform: rotate(90deg);
+         }
+
+
+         .wheel-pointer {
+             position: absolute;
+             top: -15px; /* Move pointer higher */
+             left: 50%;
+             transform: translateX(-50%); /* Center pointer horizontally */
+             width: 0;
+             height: 0;
+             border-left: 12px solid transparent; /* Smaller base */
+             border-right: 12px solid transparent; /* Smaller base */
+             border-top: 20px solid var(--text-light); /* Pointy end color */
+             z-index: 2;
+              filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); /* Shadow for pointer */
+         }
+          .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px; /* Size */
+            height: 60px; /* Size */
+            background-color: var(--card-bg); /* dark-gray-800 */
+            border: 3px solid var(--accent-green); /* Accent border */
+            border-radius: 50%;
+            z-index: 3; /* Above pointer */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--accent-green); /* Accent text color */
+            font-size: 1.1rem;
+            cursor: pointer;
+             transition: transform 0.1s ease-in-out, opacity 0.2s ease-in-out;
+             box-shadow: 0 0 10px rgba(50, 205, 50, 0.3); /* Subtle glow */
+         }
+         .wheel-center:active {
+             transform: translate(-50%, -50%) scale(0.95); /* Pop effect on press */
+         }
+
+         /* --- End Enhanced Spin Wheel Styles --- */
+
+
+         /* --- Enhanced Wallet Page Styles --- */
+         .total-balance-box {
+             background: linear-gradient(45deg, rgba(50, 205, 50, 0.9), rgba(0, 100, 0, 0.7)); /* Stronger green gradient */
+             border-radius: 1rem; /* Slightly less rounded */
+             padding: 1.5rem;
+             margin-bottom: 1.5rem;
+             position: relative;
+             overflow: hidden;
+             color: var(--text-light);
+             box-shadow: 0 5px 15px rgba(0, 128, 0, 0.3); /* Green shadow */
+         }
+         .total-balance-box::before {
+             content: '';
+             position: absolute;
+             top: 0;
+             left: 0;
+             right: 0;
+             bottom: 0;
+             /* Background pattern - subtle */
+             background-image: url('data:image/svg+xml,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.05"></path></pattern><rect width="100%" height="100%" fill="url(#grid)"></rect></svg>');
+             background-size: 20px 20px;
+             opacity: 0.5; /* Make pattern more visible */
+             z-index: 0;
+         }
+          .total-balance-box > * {
+              position: relative;
+              z-index: 1;
+          }
+         .total-balance-box h2 {
+             font-size: 1rem;
+             color: var(--text-light);
+             margin-bottom: 0.5rem;
+             opacity: 0.9; /* Slightly less opaque */
+         }
+         .total-balance-box p {
+             font-size: 2.2rem; /* Slightly smaller, but still large */
+             font-weight: bold;
+             color: var(--text-light);
+         }
+
+         .asset-list {
+             background-color: var(--card-bg);
+             border-radius: 0.75rem;
+             padding: 0; /* No padding, let items handle their own */
+             box-shadow: 0 0 15px rgba(0,0,0,0.4); /* Enhanced shadow */
+             overflow: hidden; /* Ensures rounded corners apply to children */
+         }
+
+         .asset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem; /* More vertical padding */
+            border-bottom: 1px solid var(--border-color);
+             transition: background-color 0.2s ease-in-out;
+         }
+         .asset-item:last-child {
+             border-bottom: none;
+         }
+         .asset-item:hover {
+             background-color: var(--input-bg); /* Hover effect using a darker shade */
+         }
+
+         .asset-item .asset-info {
+             display: flex;
+             align-items: center;
+             gap: 1rem;
+         }
+          .asset-item .asset-icon {
+              font-size: 2rem; /* Larger icons */
+              color: var(--text-muted); /* Default subtle icon color */
+              width: 2.5rem; /* Fixed width */
+              text-align: center;
+              flex-shrink: 0; /* Prevent shrinking */
+          }
+           .asset-item .asset-icon.btc { color: var(--btc-yellow); }
+           .asset-item .asset-icon.eth { color: var(--eth-blue); }
+           .asset-item .asset-icon.usdt { color: var(--usdt-green); }
+           .asset-item .asset-icon.btx { color: var(--btx-accent); }
+
+
+         .asset-item .asset-name {
+             font-weight: 600;
+             color: var(--text-light);
+         }
+         .asset-item .asset-symbol {
+             font-size: 0.8rem; /* Slightly smaller symbol text */
+             color: var(--text-muted);
+         }
+
+         .asset-item .asset-balance {
+             text-align: right;
+              flex-shrink: 0; /* Prevent shrinking */
+         }
+         .asset-item .asset-balance .amount {
+             font-weight: 700;
+              color: var(--text-light);
+             font-size: 1.1rem; /* Slightly larger amount */
+         }
+         .asset-item .asset-balance .value {
+             font-size: 0.8rem; /* Smaller value text */
+             color: var(--text-muted);
+             margin-top: 0.1rem; /* Less space */
+         }
+
+         .asset-item .asset-balance .value.usdt-value {
+             color: var(--usdt-green); /* Specific color for USDT value */
+         }
+
+         /* --- End Enhanced Wallet Page Styles --- */
+
+
+         /* --- Enhanced Profile Page Styles --- */
+          .profile-info-toggle {
+              cursor: pointer;
+              transition: background-color 0.2s ease-in-out;
+               border-radius: 0.75rem; /* Match other cards */
+          }
+          .profile-info-toggle:hover {
+               background-color: var(--input-bg); /* Hover effect */
+          }
+
+         /* --- Enhanced News Page Styles --- */
+          /* Leaderboard List Item on App Side */
+         .leaderboard-item {
+             @apply flex justify-between items-center p-3 rounded-md;
+             background-color: var(--input-bg); /* Use input background */
+             margin-bottom: 0.75rem; /* Slightly more space */
+             box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
+         }
+         .leaderboard-item .rank {
+             @apply font-bold text-blue-400;
+             width: 2rem;
+             text-align: center;
+              color: var(--accent-blue); /* Blue accent for rank */
+         }
+          .leaderboard-item .username {
+             @apply flex-grow font-semibold text-gray-200;
+              color: var(--text-light);
+              padding-left: 0.5rem; /* Space after rank */
+          }
+          .leaderboard-item .btx {
+             @apply font-bold text-green-500;
+              color: var(--accent-green); /* Green accent for BTX */
+          }
+
+          /* Dynamic News Item Styles */
+          .news-item {
+               @apply p-4 rounded-md;
+               background-color: var(--input-bg); /* Use input background */
+               margin-bottom: 1rem;
+               border-left: 4px solid var(--accent-green); /* Green accent border */
+               box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
+          }
+          .news-item img {
+               max-width: 100%; /* Make image responsive */
+               height: auto; /* Maintain aspect ratio */
+               margin-bottom: 0.75rem; /* Space below image */
+               border-radius: 0.5rem; /* Rounded corners for image */
+          }
+          .news-item h4 {
+               @apply font-semibold text-gray-200 mb-1;
+               color: var(--text-light);
+               font-size: 1.1rem; /* Slightly larger title */
+          }
+           .news-item p {
+                @apply text-sm text-gray-400;
+                color: var(--text-muted); /* Muted color for body text */
+           }
+           .news-item .news-timestamp {
+                @apply text-xs text-gray-500 mt-2 block; /* Timestamp style */
+                 color: var(--text-muted);
+           }
+
+
+         /* Enhanced Input Styles (applied generally) */
+         input[type="text"], input[type="email"], input[type="password"], input[type="number"] {
+              width: 100%;
+              padding: 0.75rem 1rem; /* More padding */
+              background-color: var(--input-bg);
+              border: 1px solid var(--input-border);
+              border-radius: 0.5rem; /* More rounded */
+              color: var(--text-light);
+              placeholder-color: var(--text-muted); /* Themed placeholder */
+              transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+         }
+         input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="number"]:focus {
+             outline: none;
+             border-color: var(--accent-blue); /* Accent color on focus */
+             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* Focus ring */
+         }
+
+          /* Enhanced Button Styles (applied generally) */
+         button {
+             transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out, transform 0.1s ease-in-out;
+         }
+         button:disabled {
+             opacity: 0.6;
+             cursor: not-allowed;
+         }
+          button:active:not(:disabled) {
+              transform: scale(0.98); /* Subtle press effect */
+          }
+
+
+         /* General Modal Styles (Enhanced) */
+         .modal {
+             position: fixed;
+             inset: 0;
+             background-color: rgba(0, 0, 0, 0.7); /* Darker, more opaque overlay */
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             z-index: 50;
+             padding: 1rem;
+              backdrop-filter: blur(5px); /* Optional: blur background */
+         }
+         .modal > div {
+             background-color: var(--card-bg);
+             padding: 1.5rem;
+             border-radius: 0.75rem; /* More rounded */
+             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+             max-width: 95%; /* Increased max width for smaller screens */
+             width: 400px;
+             position: relative;
+         }
+         .modal .close-button {
+             position: absolute;
+             top: 0.75rem;
+             right: 0.75rem;
+             color: var(--text-muted);
+             font-size: 1.5rem; /* Larger close icon */
+             cursor: pointer;
+             transition: color 0.2s ease-in-out;
+         }
+          .modal .close-button:hover {
+              color: var(--text-light);
+          }
+
+          /* Hidden state override */
+          .modal.hidden {
+              display: none;
+          }
+
+         /* Notification Modal Specific Styles */
+         #notification-modal .notification-list {
+             max-height: 300px;
+             overflow-y: auto;
+             padding-right: 0.5rem;
+         }
+         #notification-modal .notification-item {
+             padding: 0.75rem;
+             border-bottom: 1px solid var(--border-color);
+             margin-bottom: 0.5rem;
+              background-color: var(--input-bg); /* Item background */
+             border-radius: 0.5rem; /* Rounded items */
+         }
+         #notification-modal .notification-item:last-child {
+             border-bottom: none;
+             margin-bottom: 0;
+         }
+         #notification-modal .notification-item h5 {
+             font-weight: 600;
+             color: var(--text-light);
+             margin-bottom: 0.25rem;
+             font-size: 1rem;
+         }
+         #notification-modal .notification-item p {
+              font-size: 0.875rem;
+              color: var(--text-muted);
+         }
+          #notification-modal .notification-item .text-xs { /* Timestamp style */
+              color: var(--text-muted);
+          }
+
+
+         /* Loading Spinner Enhancement */
+          #loading-spinner {
+              position: fixed;
+              inset: 0;
+              background-color: rgba(18, 18, 18, 0.9); /* Very dark, more opaque */
+              flex-direction: column; /* Stack icon and text */
+              gap: 1rem; /* Space between icon and text */
+              z-index: 60; /* Higher z-index */
+              color: var(--accent-blue); /* Spinner color */
+              font-size: 4rem; /* Spinner size */
+               backdrop-filter: blur(3px); /* Subtle blur */
+         }
+         #loading-spinner::after { /* Optional text below spinner */
+             content: 'Loading...';
+             font-size: 1.2rem;
+             font-weight: 500;
+             color: var(--text-light);
+         }
+          #loading-spinner i { /* Target the icon specifically */
+              color: var(--accent-blue);
+          }
+
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col pb-16">
+
+    <!-- Loading Spinner -->
+     <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <i class="fas fa-spinner fa-spin text-blue-500 text-4xl"></i>
+         <!-- Text is now handled by ::after in CSS -->
+    </div>
+
+
+    <!-- Auth Section -->
+    <div id="auth-section" class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-700"> <!-- Enhanced card style -->
+            <h2 class="text-2xl font-bold text-center mb-6" id="auth-title">Login</h2>
+            <div class="mb-4" id="username-group" hidden>
+                <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                <input type="text" id="username" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Choose a username">
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                <input type="email" id="email" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="you@example.com">
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <input type="password" id="password" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="********">
+            </div>
+             <div class="mb-4" id="confirm-password-group" hidden>
+                <label for="confirm-password" class="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+                <input type="password" id="confirm-password" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="********">
+            </div>
+             <div class="mb-6" id="referral-code-group" hidden>
+                <label for="referral-code" class="block text-sm font-medium text-gray-300 mb-1">Referral Code (Optional)</label>
+                <input type="text" id="referral-code" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Enter referral code">
+            </div>
+            <button id="auth-button" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200">Login</button> <!-- Increased padding, rounded-lg -->
+            <p class="text-center text-sm text-gray-400 mt-6"> <!-- Increased top margin -->
+                Don't have an account? <a href="#" id="toggle-auth" class="text-blue-500 hover:underline font-semibold">Sign Up</a> <!-- Added font-semibold -->
+            </p>
+        </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="main-app" class="flex-grow flex flex-col hidden">
+
+        <!-- Page Content -->
+        <!-- Added pb-20 (more than 16) to ensure space above bottom nav on smaller screens -->
+        <div id="page-content" class="flex-grow overflow-y-auto p-4 pb-20">
+
+            <!-- Mining Page -->
+            <div id="mining-page" class="page">
+                <!-- --- Mining Page Header --- -->
+                <div class="flex justify-between items-center mb-6 pt-2">
+                    <div class="flex-grow text-xl font-bold text-gray-100">
+                         Hello, <span id="mining-header-greeting">Guest</span> 👋
+                    </div>
+                    <div>
+                         <i id="notification-icon" class="fas fa-bell text-xl text-blue-500 cursor-pointer hover:text-yellow-500 transition duration-200 relative"></i> <!-- Added relative for potential badge -->
+                         <!-- Optional: Add a notification badge (requires JS update) -->
+                         <!-- <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2">3</span> -->
+                    </div>
+                </div>
+                 <!-- --- End Mining Page Header --- -->
+
+
+                <h1 class="text-3xl font-bold text-center mb-8">BTX Mining</h1>
+
+                <div class="flex flex-col items-center justify-center mb-8">
+                    <p class="text-lg text-gray-400 mb-2">Your BTX Balance</p>
+                    <p id="mining-btx-counter" class="text-5xl font-bold text-green-500">0.00000000</p> <!-- Display more precision -->
+                </div>
+
+                <div class="flex justify-center mb-6">
+                    <div class="mining-circle-container">
+                        <div class="mining-circle"></div>
+                        <i class="fas fa-gem mining-icon"></i>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mb-6">
+                     <button id="activate-mining-btn" class="bg-blue-600 text-white px-8 py-4 rounded-full text-xl font-semibold hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Activate Mining (24 Hours)
+                    </button>
+                </div>
+
+                 <div id="mining-status-timer" class="text-center text-gray-400 text-sm mt-4 hidden"> <!-- Increased top margin -->
+                     Mining Active Until: <span id="mining-end-time" class="font-semibold text-gray-300"></span>
+                 </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                    <button id="daily-checkin-btn" class="bg-gray-800 p-6 rounded-lg flex flex-col items-center justify-center text-gray-300 hover:bg-gray-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"> <!-- Added shadow -->
+                        <i class="fas fa-calendar-check text-4xl text-green-500 mb-3"></i> <!-- Larger icon -->
+                        <span class="text-lg font-semibold text-gray-200">Daily Check-In</span> <!-- Brighter text -->
+                        <span id="checkin-status" class="text-sm mt-2 text-gray-400">Claim Now</span> <!-- Increased top margin -->
+                    </button>
+                     <button id="spin-wheel-btn" class="bg-gray-800 p-6 rounded-lg flex flex-col items-center justify-center text-gray-300 hover:bg-gray-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"> <!-- Added shadow -->
+                        <i class="fas fa-dice-d6 text-4xl text-yellow-500 mb-3"></i> <!-- Larger icon -->
+                        <span class="text-lg font-semibold text-gray-200">Spin Wheel</span> <!-- Brighter text -->
+                         <span id="spin-status" class="text-sm mt-2 text-gray-400">Spin Now</span> <!-- Increased top margin -->
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Wallet Page -->
+            <div id="wallet-page" class="page hidden">
+                <h1 class="text-3xl font-bold text-center mb-8">Wallet</h1>
+
+                <!-- Total Balance Section -->
+                <div class="total-balance-box text-center mb-8">
+                     <h2 class="font-medium">Total Balance</h2> <!-- Made font-medium -->
+                    <p id="total-balance" class="mt-2">$0.00</p> <!-- Increased top margin -->
+                </div>
+
+                 <!-- Deposit & Withdraw Buttons -->
+                <div class="flex justify-center space-x-4 mb-8">
+                     <button id="deposit-btn-wallet" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-md font-semibold hover:bg-blue-700 transition duration-200">Deposit</button> <!-- Increased padding, rounded-md -->
+                     <button id="withdraw-btn-wallet" class="flex-1 bg-green-600 text-white px-4 py-3 rounded-md font-semibold hover:bg-green-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Withdraw (Coming Soon)</button> <!-- Increased padding, rounded-md -->
+                </div>
+
+                <!-- Asset List Section -->
+                <div class="asset-list">
+                     <!-- Items generated by JS will go here -->
+                     <div class="asset-item">
+                         <div class="asset-info">
+                             <i class="asset-icon usdt fas fa-dollar-sign"></i>
+                             <div>
+                                 <p class="asset-name">USDT</p>
+                                 <p class="asset-symbol">USDT</p>
+                             </div>
+                         </div>
+                          <div class="asset-balance">
+                              <p class="amount" id="wallet-usdt-balance-list">0.00</p>
+                              <p class="value usdt-value">$<span id="wallet-usdt-value-list">0.00</span></p>
+                         </div>
+                     </div>
+                     <div class="asset-item">
+                         <div class="asset-info">
+                             <i class="asset-icon btx fas fa-gem"></i>
+                              <div>
+                                 <p class="asset-name">Bitorex</p>
+                                 <p class="asset-symbol">BTX</p>
+                              </div>
+                         </div>
+                          <div class="asset-balance">
+                              <p class="amount" id="wallet-btx-balance-list">0.00000000</p> <!-- Display more precision -->
+                              <p class="value">Price: <span class="text-gray-300" id="btx-price">Coming Soon</span></p> <!-- Added span for price -->
+                         </div>
+                     </div>
+                     <!-- Add other asset items here if needed -->
+                 </div>
+
+            </div>
+
+            <!-- News Page -->
+            <div id="news-page" class="page hidden">
+                 <h1 class="text-3xl font-bold text-center mb-8">News & Leaderboard</h1>
+
+                 <!-- Leaderboard Section (Dynamic) -->
+                 <div class="bg-gray-800 rounded-lg p-6 mb-6 shadow-lg"> <!-- Added shadow -->
+                     <h3 class="text-xl font-semibold mb-4 text-gray-200">Top Miners (Leaderboard)</h3> <!-- Brighter text -->
+                     <div id="leaderboard-list">
+                         <!-- Leaderboard items will be generated by JS -->
+                         <p class="text-gray-400 text-center italic">Loading leaderboard...</p> <!-- Loading placeholder -->
+                     </div>
+                 </div>
+
+                 <!-- News Section (Dynamic) -->
+                 <div class="bg-gray-800 rounded-lg p-6 shadow-lg"> <!-- Added shadow -->
+                     <h3 class="text-xl font-semibold mb-4 text-gray-200">App Updates & News</h3> <!-- Brighter text -->
+                     <div id="news-list">
+                          <!-- News items will be populated here by JS -->
+                          <p class="text-gray-400 text-center italic">Loading news...</p> <!-- Loading placeholder -->
+                     </div>
+                 </div>
+            </div>
+
+             <!-- Games Page -->
+             <div id="games-page" class="page hidden">
+                 <h1 class="text-3xl font-bold text-center mb-8">Games</h1>
+                 <div class="bg-gray-800 rounded-lg p-8 text-center shadow-lg"> <!-- Increased padding, added shadow -->
+                     <i class="fas fa-gamepad text-7xl text-gray-600 mb-4"></i> <!-- Larger, muted icon -->
+                     <p class="text-xl font-semibold text-gray-200">Games Coming Soon!</p> <!-- Brighter text -->
+                     <p class="text-gray-400 mt-2">Exciting games to earn more BTX are currently under development.</p>
+                 </div>
+             </div>
+
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="page hidden">
+                <h1 class="text-3xl font-bold text-center mb-8">Profile</h1>
+
+                <!-- Profile Summary - Clickable to open modal -->
+                <div id="profile-summary" class="flex items-center space-x-4 bg-gray-800 rounded-lg p-6 mb-6 profile-info-toggle shadow-lg"> <!-- Added shadow -->
+                    <div class="flex-shrink-0">
+                         <i class="fas fa-user-circle text-6xl text-gray-500"></i> <!-- Larger muted icon -->
+                    </div>
+                    <div>
+                        <p id="profile-username" class="text-xl font-semibold text-gray-200">Loading...</p> <!-- Brighter text -->
+                        <p class="text-gray-400 text-sm mt-1">User ID: <span id="profile-uid" class="font-mono text-gray-300">Loading...</span></p> <!-- Added font-mono, brighter text -->
+                         <p id="toggle-details-text" class="text-blue-500 text-sm mt-2 font-semibold hover:underline">View/Edit Details</p> <!-- Increased top margin, added font-semibold -->
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 rounded-lg p-6 mb-6 shadow-lg"> <!-- Added shadow -->
+                    <h3 class="text-xl font-semibold mb-4 text-gray-200">Referral System</h3> <!-- Brighter text -->
+                    <p class="text-gray-300 mb-2 text-sm">Referral Level: <span id="referral-level" class="font-bold text-blue-500">Lvl 0</span></p> <!-- Smaller text -->
+                    <p class="text-gray-300 mb-4 text-sm">Total Invites: <span id="invite-count" class="font-bold text-gray-200">0</span></p> <!-- Smaller text, brighter count -->
+                    <p class="text-gray-400 text-xs mb-4">Mining Speed Bonus: +<span id="speed-bonus" class="font-bold text-green-500">0</span>% (Simulated)</p> <!-- Smaller text, bold green bonus -->
+                    <button id="copy-invite-link-btn" class="bg-blue-600 text-white px-4 py-3 rounded-md font-semibold hover:bg-blue-700 transition duration-200 w-full text-base"> <!-- Increased padding, text size -->
+                        Copy Invite Link
+                    </button>
+                </div>
+
+                <div class="bg-gray-800 rounded-lg p-6 shadow-lg"> <!-- Added shadow -->
+                    <h3 class="text-xl font-semibold mb-4 text-gray-200">Links & Settings</h3> <!-- Brighter text -->
+                    <ul>
+                        <li class="border-b border-gray-700 last:border-b-0 py-3"> <!-- Increased padding -->
+                            <a href="#" class="flex justify-between items-center text-gray-300 hover:text-blue-500 transition duration-200">
+                                Whitepaper
+                                <i class="fas fa-external-link-alt text-sm text-gray-500"></i> <!-- Muted icon -->
+                            </a>
+                        </li>
+                        <li class="border-b border-gray-700 last:border-b-0 py-3"> <!-- Increased padding -->
+                            <a href="#" class="flex justify-between items-center text-gray-300 hover:text-blue-500 transition duration-200">
+                                Support
+                                <i class="fas fa-external-link-alt text-sm text-gray-500"></i> <!-- Muted icon -->
+                            </a>
+                        </li>
+                         <li class="border-b border-gray-700 last:border-b-0 py-3"> <!-- Increased padding -->
+                            <div class="flex justify-between items-center text-gray-300">
+                                <span>Dark Mode</span>
+                                <label for="dark-mode-toggle" class="flex items-center cursor-pointer">
+                                     <div class="relative">
+                                         <input type="checkbox" id="dark-mode-toggle" class="sr-only">
+                                         <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                                         <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                                     </div>
+                                </label>
+                            </div>
+                        </li>
+                        <li class="pt-4"> <!-- Increased top padding -->
+                             <button id="logout-btn" class="w-full text-left text-red-500 font-semibold hover:underline transition duration-200 py-2"> <!-- Added vertical padding -->
+                                Logout
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+             <a href="#" class="nav-item active" data-page="mining-page">
+                 <i class="fas fa-home"></i>
+                 <span>Mining</span>
+             </a>
+             <a href="#" class="nav-item" data-page="wallet-page">
+                 <i class="fas fa-wallet"></i>
+                 <span>Wallet</span>
+             </a>
+             <a href="#" class="nav-item" data-page="news-page">
+                 <i class="fas fa-newspaper"></i>
+                 <span>News</span>
+             </a>
+             <a href="#" class="nav-item" data-page="games-page">
+                 <i class="fas fa-gamepad"></i>
+                 <span>Games</span>
+             </a>
+             <a href="#" class="nav-item" data-page="profile-page">
+                 <i class="fas fa-user"></i>
+                 <span>Profile</span>
+             </a>
+        </div>
+
+    </div>
+
+
+    <!-- Withdraw Modal (Coming Soon) -->
+    <div id="withdraw-modal" class="modal hidden">
+        <div>
+             <button class="close-button" onclick="hideWithdrawModal()">
+                 <i class="fas fa-times"></i>
+             </button>
+            <h2 class="text-xl font-bold mb-4 text-gray-200">Withdraw USDT (Coming Soon)</h2> <!-- Brighter text -->
+            <div class="mb-4 text-gray-300 text-base"> <!-- Slightly larger text -->
+                Withdrawal is currently disabled. Please check back later.
+            </div>
+            <div class="flex justify-end mt-6"> <!-- Increased top margin -->
+                <button id="cancel-withdraw-btn" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-md font-semibold hover:bg-gray-600 transition duration-200">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Info Modal -->
+    <div id="deposit-modal" class="modal hidden">
+        <div>
+             <button class="close-button" onclick="hideDepositInfo()">
+                 <i class="fas fa-times"></i>
+             </button>
+            <h2 class="text-xl font-bold mb-4 text-gray-200">Deposit USDT (TRC20)</h2> <!-- Brighter text -->
+             <p class="text-gray-400 text-sm mb-4">Send USDT (TRC20 network) to this address. This is a simulation only. Actual deposits are not processed.</p>
+             <div class="mb-4">
+                <label for="deposit-address-modal" class="block text-sm font-medium text-gray-300 mb-1">TRC20 Address</label>
+                <input type="text" id="deposit-address-modal" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 text-sm break-all font-mono" value="TKheWvzZB8WekfdQwUbp8VW4u6nfUmNedi" readonly> <!-- Added font-mono -->
+             </div>
+             <div class="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
+                <button id="copy-deposit-address-modal-btn" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-md font-semibold text-sm hover:bg-blue-700 transition duration-200">Copy Address</button> <!-- Increased padding -->
+                <!-- Simulated Deposit Button -->
+                 <button id="simulate-deposit-btn" class="flex-1 bg-green-600 text-white px-4 py-3 rounded-md font-semibold text-sm hover:bg-green-700 transition duration-200">Simulate $<span id="simulate-deposit-amount">10</span> Deposit</button> <!-- Increased padding -->
+             </div>
+        </div>
+    </div>
+
+
+     <!-- Spin Wheel Modal -->
+     <div id="spin-wheel-modal" class="modal hidden">
+        <div class="w-full max-w-md text-center">
+             <button class="close-button" onclick="hideSpinWheelModal()">
+                 <i class="fas fa-times"></i>
+             </button>
+            <h2 class="text-2xl font-bold mb-4 text-gray-200">Spin the Wheel!</h2> <!-- Brighter text -->
+
+             <div class="wheel-container">
+                 <div class="wheel">
+                     <!-- Reward Labels (Updated to sum to 30 BTX) -->
+                     <!-- Angles are center points of each sector (0=right, clockwise) -->
+                     <!-- Sector 1 (Red): 0-45 -> Center 22.5 -->
+                     <div class="wheel-label" style="--angle: 22.5deg;"><span>7 BTX</span></div>
+                     <!-- Sector 2 (Amber): 45-90 -> Center 67.5 -->
+                     <div class="wheel-label" style="--angle: 67.5deg;"><span>6 BTX</span></div>
+                     <!-- Sector 3 (Emerald): 90-135 -> Center 112.5 -->
+                     <div class="wheel-label" style="--angle: 112.5deg;"><span>5 BTX</span></div>
+                     <!-- Sector 4 (Blue): 135-180 -> Center 157.5 -->
+                     <div class="wheel-label" style="--angle: 157.5deg;"><span>4 BTX</span></div>
+                      <!-- Sector 5 (Violet): 180-225 -> Center 202.5 -->
+                     <div class="wheel-label" style="--angle: 202.5deg;"><span>3 BTX</span></div>
+                     <!-- Sector 6 (Pink): 225-270 -> Center 247.5 -->
+                     <div class="wheel-label" style="--angle: 247.5deg;"><span>2 BTX</span></div>
+                      <!-- Sector 7 (Amber): 270-315 -> Center 292.5 -->
+                     <div class="wheel-label" style="--angle: 292.5deg;"><span>1 BTX</span></div>
+                     <!-- Sector 8 (Emerald): 315deg 360deg Center 337.5 -->
+                     <div class="wheel-label" style="--angle: 337.5deg;"><span>2 BTX</span></div>
+                 </div>
+                 <div class="wheel-pointer"></div>
+                 <div class="wheel-center">Spin</div>
+             </div>
+
+             <p id="spins-left-text" class="text-gray-400 text-base mt-6">Spins left today: <span id="spins-left-count" class="font-semibold text-gray-300">0</span>/<span id="total-daily-spins" class="font-semibold text-gray-300">5</span></p> <!-- Increased text size, brighter count -->
+        </div>
+    </div>
+
+     <!-- Profile Details Modal -->
+     <div id="profile-details-modal" class="modal hidden">
+        <div class="w-full max-w-sm profile-details-modal-content">
+             <button class="close-button" onclick="hideProfileDetailsModal()">
+                 <i class="fas fa-times"></i>
+             </button>
+            <h2 class="text-xl font-bold mb-4 text-gray-200">Edit Profile Details</h2> <!-- Brighter text -->
+             <div class="mb-4">
+                 <label for="modal-username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                 <input type="text" id="modal-username" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100" readonly>
+             </div>
+             <div class="mb-4">
+                 <label for="modal-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                 <input type="email" id="modal-email" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100" readonly>
+             </div>
+             <div class="mb-4">
+                 <label for="modal-real-name" class="block text-sm font-medium text-gray-300 mb-1">Real Name</label>
+                 <input type="text" id="modal-real-name" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400" placeholder="Enter your real name">
+             </div>
+             <div class="mb-4">
+                 <label for="modal-age" class="block text-sm font-medium text-gray-300 mb-1">Age</label>
+                 <input type="number" id="modal-age" min="1" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400" placeholder="Enter your age">
+             </div>
+             <div class="mb-4">
+                 <label for="modal-country" class="block text-sm font-medium text-gray-300 mb-1">Country</label>
+                 <input type="text" id="modal-country" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400" placeholder="Enter your country">
+             </div>
+             <div class="mb-6">
+                 <label for="modal-address" class="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                 <input type="text" id="modal-address" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400" placeholder="Enter your address">
+             </div>
+             <div class="flex justify-end space-x-4">
+                 <button id="cancel-profile-details-btn" class="bg-gray-700 text-gray-300 px-4 py-2 rounded-md font-semibold hover:bg-gray-600 transition duration-200">Cancel</button>
+                 <button id="save-profile-details-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-200">Save Details</button>
+             </div>
+         </div>
+     </div>
+
+     <!-- Notification Modal -->
+     <div id="notification-modal" class="modal hidden">
+        <div>
+             <button class="close-button" onclick="hideNotificationModal()">
+                 <i class="fas fa-times"></i>
+             </button>
+            <h2 class="text-xl font-bold mb-4 text-gray-200">Notifications</h2> <!-- Brighter text -->
+             <ul id="notification-list" class="notification-list">
+                <!-- Notification items will be added by JS -->
+                 <li class="text-gray-400 text-center italic">Loading notifications...</li> <!-- Italic placeholder -->
+             </ul>
+        </div>
+     </div>
+
+
+    <!-- Firebase CDN (using compat libraries) -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-database-compat.js"></script>
+
+    <!-- Optional: Chart.js CDN -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+
+
+    <script>
+        // Firebase Configuration (Using the details you provided)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHJC00C6CcbVn4cp2Gu-WC6CzhbofKNnE",
+            authDomain: "trading-94d96.firebaseapp.com",
+            databaseURL: "https://trading-94d96-default-rtdb.firebaseio.com",
+            projectId: "trading-94d96",
+            storageBucket: "trading-94d96.firebasestorage.app",
+            messagingSenderId: "570063192101",
+            // appId: "1:570063192101:web:99c855fc5b5d1b8c357fcc", // App ID is optional for basic usage
+            // measurementId: "G-CPX5MXDLB0" // Keep measurementId commented out if not actively using Analytics
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database(); // Initialize Realtime Database
+
+        // --- Firebase Database References ---
+         const newsRef = database.ref('/news');
+         const leaderboardRef = database.ref('/leaderboard'); // Reference to public leaderboard data
+
+
+        // --- DOM Elements ---
+        const authSection = document.getElementById('auth-section');
+        const mainAppSection = document.getElementById('main-app');
+        const authTitle = document.getElementById('auth-title');
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const referralCodeInput = document.getElementById('referral-code');
+        const authButton = document.getElementById('auth-button');
+        const toggleAuthLink = document.getElementById('toggle-auth');
+        const usernameGroup = document.getElementById('username-group');
+        const confirmPasswordGroup = document.getElementById('confirm-password-group');
+        const referralCodeGroup = document.getElementById('referral-code-group');
+
+        // Profile Summary & Modal Elements
+        const profileSummary = document.getElementById('profile-summary');
+        const profileDetailsModal = document.getElementById('profile-details-modal');
+        const modalUsernameInput = document.getElementById('modal-username');
+        const modalEmailInput = document.getElementById('modal-email');
+        const modalRealNameInput = document.getElementById('modal-real-name');
+        const modalAgeInput = document.getElementById('modal-age');
+        const modalCountryInput = document.getElementById('modal-country');
+        const modalAddressInput = document.getElementById('modal-address');
+        const saveProfileDetailsBtn = document.getElementById('save-profile-details-btn');
+        const cancelProfileDetailsBtn = document.getElementById('cancel-profile-details-btn');
+
+
+        const profileUsername = document.getElementById('profile-username');
+        const profileUID = document.getElementById('profile-uid'); // This will now show numeric ID
+        const logoutBtn = document.getElementById('logout-btn');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+
+        const pages = document.querySelectorAll('.page');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // Mining Page Elements
+        const miningHeaderGreeting = document.getElementById('mining-header-greeting');
+        const notificationIcon = document.getElementById('notification-icon');
+        const miningBtxCounter = document.getElementById('mining-btx-counter');
+        const activateMiningBtn = document.getElementById('activate-mining-btn');
+        const miningStatusTimer = document.getElementById('mining-status-timer');
+        const miningEndTimeDisplay = document.getElementById('mining-end-time');
+
+        const dailyCheckinBtn = document.getElementById('daily-checkin-btn');
+        const checkinStatus = document.getElementById('checkin-status');
+        const spinWheelBtn = document.getElementById('spin-wheel-btn');
+        const spinStatus = document.getElementById('spin-status');
+
+
+        // Wallet Page Elements
+        const totalBalanceElement = document.getElementById('total-balance');
+        const walletUsdtBalanceListElement = document.getElementById('wallet-usdt-balance-list');
+        const walletUsdtValueListElement = document.getElementById('wallet-usdt-value-list');
+        const walletBtxBalanceListElement = document.getElementById('wallet-btx-balance-list');
+        const btxPriceElement = document.getElementById('btx-price');
+
+        const depositBtnWallet = document.getElementById('deposit-btn-wallet');
+        const withdrawBtnWallet = document.getElementById('withdraw-btn-wallet');
+        const withdrawModal = document.getElementById('withdraw-modal');
+        const cancelWithdrawBtn = document.getElementById('cancel-withdraw-btn');
+
+        const depositModal = document.getElementById('deposit-modal');
+        const depositAddressModalInput = document.getElementById('deposit-address-modal');
+        const copyDepositAddressModalBtn = document.getElementById('copy-deposit-address-modal-btn');
+        const simulateDepositBtn = document.getElementById('simulate-deposit-btn');
+        const simulateDepositAmountSpan = document.getElementById('simulate-deposit-amount');
+
+        // News Page Elements
+         const newsListElement = document.getElementById('news-list'); // Element to populate news into
+         const leaderboardListElement = document.getElementById('leaderboard-list'); // Element for leaderboard data
+
+
+        // Profile Page Elements
+        const referralLevelElement = document.getElementById('referral-level');
+        const inviteCountElement = document.getElementById('invite-count');
+        const speedBonusElement = document.getElementById('speed-bonus');
+        const copyInviteLinkBtn = document.getElementById('copy-invite-link-btn');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+        // Spin Wheel Modal Elements
+        const spinWheelModal = document.getElementById('spin-wheel-modal');
+        const wheelElement = spinWheelModal.querySelector('.wheel');
+        const wheelCenterBtn = spinWheelModal.querySelector('.wheel-center');
+        const spinsLeftCountSpan = document.getElementById('spins-left-count');
+        const totalDailySpinsSpan = document.getElementById('total-daily-spins'); // Will display the new limit
+
+        // Notification Modal Elements
+        const notificationModal = document.getElementById('notification-modal');
+        const notificationList = document.getElementById('notification-list');
+
+
+        // --- State Variables (using localStorage and Firebase RTDB) ---
+        // Initialize with defaults, will be overwritten by loaded state
+        let userState = {
+            uid: null, // Firebase UID (internal only)
+            numericUserId: null, // Generated numeric ID (displayed, used for referral)
+            referredBy: null, // Numeric ID of the user who referred this user
+            email: null,
+            username: 'Guest',
+            realName: '', country: '', address: '', age: '',
+            btxBalance: 0.00,
+            usdtBalance: 5.00, // Default starting balance
+            lastMiningBonusClaim: 0,
+            miningActiveUntil: 0, // Timestamp when mining stops (0 means inactive)
+            lastMiningUpdate: Date.now(), // Timestamp for calculating passive earnings
+            referralCount: 0, // Simulated referral count (incremented manually for simulation)
+            lastDailyCheckin: 0,
+            dailyStreak: 0,
+            lastSpinTime: 0,
+            dailyFreeSpins: 0, // Added: Count of free spins remaining today
+            lastSpinResetTimestamp: 0, // Added: Timestamp when free spins were last reset (start of day)
+            darkMode: true, // Default to dark mode
+            notifications: [], // Added: Array to store simulated notifications
+        };
+
+        // --- Game Rules Constants ---
+        const BTX_MINED_PER_24H = 15; // Total BTX mined passively over 24 hours of active mining
+        const MINING_ACTIVE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours of active mining per activation
+        const BASE_PASSIVE_RATE_PER_MS = BTX_MINED_PER_24H / MINING_ACTIVE_DURATION_MS; // Base BTX per millisecond
+        const REFERRAL_SPEED_BONUS_PERCENT = 10; // 10% speed increase per active referral (Simulated)
+
+        const DAILY_CHECKIN_REWARDS = [ 1, 2, 3, 4, 5, 6, 9 ]; // Day 1 to Day 7 rewards (Sum: 30)
+
+        const CHECKIN_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours cooldown to claim next checkin
+        const CHECKIN_STREAK_RESET_MS = 48 * 60 * 60 * 1000; // Reset streak after 48h inactivity
+
+        const DAILY_FREE_SPINS_COUNT = 1; // Number of free spins given daily
+
+        const MIN_WITHDRAW_USDT = 10; // Withdrawal is Coming Soon, but keep constant
+        const USDT_DEPOSIT_AMOUNT_SIMULATED = 10; // Amount added on simulated deposit
+
+        const USDT_DEPOSIT_ADDRESS = "TKheWvzZB8WekfdQwUbp8VW4u6nfUmNedi"; // Fixed deposit address
+        const BTX_PRICE_IN_USDT = 0.01; // Placeholder BTX price for wallet value calculation
+
+
+        // Referral level tiers (count: level) - Keep as is, but speed bonus is per active referral
+        const referralTiers = {
+            0: 0, 5: 1, 15: 2, 30: 3, 50: 4,
+            75: 5, 100: 6, 250: 7, 500: 8, 1000: 9, 1500: 10
+        };
+
+        // Spin Wheel Sectors (Degrees and Rewards - Updated to sum to 30)
+        // Angles are defined relative to 0=right, clockwise.
+        // Each sector is 360 / 8 = 45 degrees wide.
+        const spinSectors = [
+            { reward: 7, color: 'var(--spin-red)', minDegree: 0, maxDegree: 45, centerAngle: 22.5 },    /* Red (7 BTX) */
+            { reward: 6, color: 'var(--spin-amber)', minDegree: 45, maxDegree: 90, centerAngle: 67.5 },   /* Amber (6 BTX) */
+            { reward: 5, color: 'var(--spin-emerald)', minDegree: 90, maxDegree: 135, centerAngle: 112.5 },  /* Emerald (5 BTX) */
+            { reward: 4, color: 'var(--spin-blue)', minDegree: 135, maxDegree: 180, centerAngle: 157.5 }, /* Blue (4 BTX) */
+            { reward: 3, color: 'var(--spin-violet)', minDegree: 180, maxDegree: 225, centerAngle: 202.5 }, /* Violet (3 BTX) */
+            { reward: 2, color: 'var(--spin-pink)', minDegree: 225, maxDegree: 270, centerAngle: 247.5 }, /* Pink (2 BTX) */
+            { reward: 1, color: 'var(--spin-amber)', minDegree: 270, maxDegree: 315, centerAngle: 292.5 }, /* Amber (1 BTX) */
+            { reward: 2, color: 'var(--spin-emerald)', minDegree: 315, maxDegree: 360, centerAngle: 337.5 } /* Emerald (2 BTX) */
+        ];
+        const SPIN_FULL_ROTATIONS = 5; // Number of full spins before landing
+
+
+        // --- Local Storage Key ---
+        // Use a slightly different key or versioning if you make significant state structure changes
+        const localStorageKey = 'bitorexState_v4_'; // Updated version key
+
+
+         /**
+          * Shows the loading spinner.
+          */
+         function showSpinner() {
+             if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+         }
+
+         /**
+          * Hides the loading spinner.
+          */
+         function hideSpinner() {
+             if (loadingSpinner) loadingSpinner.classList.add('hidden');
+         }
+
+
+        /**
+         * Saves the current userState to localStorage and Firebase Realtime Database.
+         * Only saves if a user is logged in (userState.uid is set).
+         * Ensures data types are correct before saving.
+         */
+        function saveState() {
+            if (!userState.uid) {
+                 console.warn("Attempted to save state but userState.uid is null. Skipping save.");
+                 return;
+             }
+             // Update lastMiningUpdate timestamp before saving
+             userState.lastMiningUpdate = Date.now();
+
+             const stateToSave = {
+                  uid: userState.uid,
+                  numericUserId: userState.numericUserId ? String(userState.numericUserId) : null, // Ensure string or null
+                  referredBy: userState.referredBy ? String(userState.referredBy) : null, // Ensure string or null
+                  email: userState.email ? String(userState.email) : null, // Ensure string or null
+                  username: userState.username ? String(userState.username) : 'Guest', // Ensure string
+                  realName: userState.realName ? String(userState.realName) : '', // Ensure string
+                  country: userState.country ? String(userState.country) : '', // Ensure string
+                  address: userState.address ? String(userState.address) : '', // Ensure string
+                  age: userState.age ? String(userState.age) : '', // Keep age as string
+                  btxBalance: parseFloat(userState.btxBalance) || 0.00, // Ensure numeric
+                  usdtBalance: parseFloat(userState.usdtBalance) || 0.00, // Ensure numeric
+                  lastMiningBonusClaim: parseInt(userState.lastMiningBonusClaim) || 0, // Ensure numeric (timestamp)
+                  miningActiveUntil: parseInt(userState.miningActiveUntil) || 0, // Ensure numeric (timestamp)
+                  lastMiningUpdate: parseInt(userState.lastMiningUpdate) || Date.now(), // Ensure numeric (timestamp)
+                  referralCount: parseInt(userState.referralCount) || 0, // Ensure numeric
+                  lastDailyCheckin: parseInt(userState.lastDailyCheckin) || 0, // Ensure numeric (timestamp)
+                  dailyStreak: parseInt(userState.dailyStreak) || 0, // Ensure numeric
+                  lastSpinTime: parseInt(userState.lastSpinTime) || 0, // Ensure numeric (timestamp)
+                  dailyFreeSpins: parseInt(userState.dailyFreeSpins) || 0, // Ensure numeric
+                  lastSpinResetTimestamp: parseInt(userState.lastSpinResetTimestamp) || 0, // Ensure numeric (timestamp)
+                  darkMode: typeof userState.darkMode === 'boolean' ? userState.darkMode : true, // Ensure boolean
+                  notifications: Array.isArray(userState.notifications) ? userState.notifications : [], // Ensure array
+              };
+
+             try {
+                 // Save to localStorage (as cache)
+                 localStorage.setItem(localStorageKey + userState.uid, JSON.stringify(stateToSave));
+                 // console.log("State saved to localStorage.");
+             } catch (e) {
+                  console.error("Error saving state to localStorage:", e);
+             }
+
+              // Save to Firebase RTDB
+              // Use update() instead of set() to prevent accidentally overwriting the whole user object if new fields are added elsewhere
+              database.ref('users/' + userState.uid).update(stateToSave)
+                 .then(() => {
+                     // console.log("State saved to Firebase RTDB.");
+                 })
+                 .catch((error) => {
+                     console.error("Error saving state to Firebase RTDB:", error);
+                     // Optionally show a non-blocking toast or message
+                      Swal.fire({
+                           toast: true,
+                           position: 'top-end',
+                           icon: 'error',
+                           title: 'Save failed: Could not sync data to server.',
+                           showConfirmButton: false,
+                           timer: 3000
+                      });
+                 });
+         }
+
+        /**
+         * Loads user state from Firebase RTDB or localStorage fallback.
+         * Initializes default state if no saved data is found.
+         * Calculates offline earnings and resets daily spins if necessary.
+         * @param {string} uid - The Firebase User UID.
+         * @param {string} email - The user's email.
+         * @returns {Promise<void>} Resolves when state is loaded and processed.
+         */
+        async function loadState(uid, email) {
+            const now = Date.now();
+            const today = new Date();
+            // Use UTC midnight for daily resets to avoid timezone issues
+            const startOfTodayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())).getTime();
+
+            const userRef = database.ref('users/' + uid);
+            let loaded = null;
+            let loadedSource = 'defaults'; // Track where state came from
+
+            try {
+                // 1. Try loading from Firebase RTDB
+                console.log(`Attempting to load state from Firebase RTDB for user ${uid}...`);
+                const snapshot = await userRef.once('value');
+                if (snapshot.exists()) {
+                    loaded = snapshot.val();
+                    loadedSource = 'firebase';
+                    console.log("Loaded state from Firebase RTDB.");
+                    // Also save this to localStorage as a cache
+                    try {
+                         localStorage.setItem(localStorageKey + uid, JSON.stringify(loaded));
+                         console.log("Cached state to localStorage from Firebase.");
+                    } catch (e) {
+                         console.error("Error caching state to localStorage:", e);
+                    }
+                } else {
+                    // 2. If not in RTDB, try localStorage
+                    console.log("No state found in RTDB. Attempting to load from localStorage...");
+                    const savedState = localStorage.getItem(localStorageKey + uid);
+                    if (savedState) {
+                        try {
+                             loaded = JSON.parse(savedState);
+                             loadedSource = 'localStorage';
+                             console.log("Loaded state from localStorage.");
+                             // If loaded from local, push it to RTDB (e.g., user was offline, now online)
+                              console.log("Pushing localStorage state to Firebase RTDB...");
+                               // Use update() here to potentially merge with existing minimal data if RTDB wasn't completely empty
+                               userRef.update(loaded)
+                                   .then(() => console.log("LocalStorage state successfully pushed to Firebase RTDB."))
+                                   .catch(updateError => console.error("Error pushing localStorage state to Firebase RTDB:", updateError));
+
+                        } catch (e) {
+                            console.error("Error parsing localStorage state:", e);
+                            loaded = null; // Treat as no saved state if parsing fails
+                        }
+                    } else {
+                        console.log("No state found in localStorage.");
+                    }
+                }
+            } catch (firebaseError) {
+                console.error("Error accessing Firebase RTDB during load:", firebaseError);
+                 // Fallback to localStorage if RTDB access fails
+                 console.log("Firebase RTDB access failed. Attempting to load from localStorage as fallback...");
+                 const savedState = localStorage.getItem(localStorageKey + uid);
+                 if (savedState) {
+                     try {
+                          loaded = JSON.parse(savedState);
+                          loadedSource = 'localStorageFallback';
+                          console.log("Loaded state from localStorage (fallback).");
+                     } catch (e) {
+                         console.error("Error parsing localStorage state in fallback:", e);
+                         loaded = null;
+                     }
+                 } else {
+                     console.log("No state in localStorage for fallback.");
+                 }
+                 Swal.fire('Sync Error', 'Could not sync data with the server. Working offline. Data will sync when connection is restored.', 'warning');
+            }
+
+            // --- Initialize or Merge State ---
+            // Create a default state object
+            let newUserState = {
+                 uid: uid, // Firebase UID (internal)
+                 numericUserId: String(Math.floor(100000 + Math.random() * 900000)), // Default/New User ID (Generate even if loading, will be overwritten if loaded. This handles first-time generation.)
+                 referredBy: null, // Default/New User referredBy
+                 email: email,
+                 username: email ? email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '') || 'User' : 'User', // Default username based on email
+                 realName: '', country: '', address: '', age: '',
+                 btxBalance: 0.00, usdtBalance: 5.00,
+                 lastMiningBonusClaim: 0, miningActiveUntil: 0, lastMiningUpdate: now,
+                 referralCount: 0, lastDailyCheckin: 0, dailyStreak: 0,
+                 lastSpinTime: 0,
+                 dailyFreeSpins: DAILY_FREE_SPINS_COUNT, // Default for new users
+                 lastSpinResetTimestamp: startOfTodayUTC, // Default for new users
+                 darkMode: userState.darkMode, // Keep current dark mode setting from initial script
+                 notifications: [],
+            };
+
+            if (loaded) {
+                 // Merge properties from loaded state into the new state structure
+                 // This handles cases where new properties might be added to the default state
+                 // Ensure data types are corrected during merge
+                 Object.keys(newUserState).forEach(key => {
+                     if (loaded[key] !== undefined && loaded[key] !== null) {
+                          // Explicitly convert common types, providing default value if conversion fails
+                          if (typeof newUserState[key] === 'number') {
+                                newUserState[key] = parseFloat(loaded[key]) || (typeof newUserState[key] === 'number' ? newUserState[key] : 0);
+                          } else if (typeof newUserState[key] === 'boolean') {
+                                newUserState[key] = typeof loaded[key] === 'boolean' ? loaded[key] : (typeof newUserState[key] === 'boolean' ? newUserState[key] : true); // Default to true for dark mode
+                          } else if (Array.isArray(newUserState[key])) {
+                                // For arrays like notifications, ensure it's an array, but don't merge deeply here
+                                newUserState[key] = Array.isArray(loaded[key]) ? loaded[key] : (Array.isArray(newUserState[key]) ? newUserState[key] : []); // Default to empty array
+                          } else {
+                             // Default to string or keep as is for others, provide default empty string if loaded is null/undefined
+                             newUserState[key] = loaded[key] !== undefined && loaded[key] !== null ? String(loaded[key]) : '';
+                          }
+                     }
+                 });
+
+                  // Specific checks for critical loaded values that must be present/correct
+                  if (!newUserState.numericUserId || typeof newUserState.numericUserId !== 'string' || newUserState.numericUserId.length < 6) { // Add length check for sanity
+                       console.warn("Loaded state missing or invalid numeric user ID. Regenerating.");
+                       newUserState.numericUserId = String(Math.floor(100000 + Math.random() * 900000));
+                  }
+                  if (newUserState.referredBy !== null && typeof newUserState.referredBy !== 'string') {
+                       console.warn("Loaded state has invalid referredBy format. Converting to string.");
+                       newUserState.referredBy = String(newUserState.referredBy);
+                  } else if (newUserState.referredBy === "") { // Treat empty string as null
+                       newUserState.referredBy = null;
+                  }
+
+                   // Ensure timestamps are numbers, defaulting if not valid
+                  newUserState.lastMiningBonusClaim = parseInt(newUserState.lastMiningBonusClaim) || 0;
+                  newUserState.miningActiveUntil = parseInt(newUserState.miningActiveUntil) || 0;
+                  // Ensure lastMiningUpdate is not 0 or invalid, default to now if needed
+                  newUserState.lastMiningUpdate = parseInt(newUserState.lastMiningUpdate) || now;
+                  newUserState.lastDailyCheckin = parseInt(newUserState.lastDailyCheckin) || 0;
+                  newUserState.lastSpinTime = parseInt(newUserState.lastSpinTime) || 0;
+                   // Ensure lastSpinResetTimestamp is valid, default to startOfTodayUTC if needed
+                  newUserState.lastSpinResetTimestamp = parseInt(newUserState.lastSpinResetTimestamp) || startOfTodayUTC;
+
+                  newUserState.dailyFreeSpins = parseInt(newUserState.dailyFreeSpins) || 0; // Ensure spins is number
+
+
+            } else {
+                 // This path is for a truly new user (no data in RTDB or localStorage).
+                 // newUserState already contains the default values, including a generated numericUserId
+                 // and default dailyFreeSpins.
+
+                 // If userState.referredBy was set from the URL in signup state (handled before this function is called), use that.
+                 // Check if we are in signup flow (!isLoginState) AND if urlReferralCode was captured
+                 if (!isLoginState && urlReferralCode) {
+                      newUserState.referredBy = urlReferralCode;
+                      console.log(`New user initialized with referredBy: ${urlReferralCode}`);
+                      // Clear the URL referral code after using it for signup
+                      urlReferralCode = null; // Consumed the code
+                 }
+
+                  // Add initial notifications for truly new users if not loaded from anywhere
+                  if (loadedSource === 'defaults') {
+                       newUserState.notifications = [
+                           { title: 'Welcome!', message: 'Welcome to Bitorex Mining Simulator!', timestamp: now - 5000 },
+                           { title: 'Daily Bonus', message: `Your ${DAILY_FREE_SPINS_COUNT} free spin${DAILY_FREE_SPINS_COUNT > 1 ? 's' : ''} ${DAILY_FREE_SPINS_COUNT > 1 ? 'are' : 'is'} ready!`, timestamp: now },
+                           { title: 'Mining Activated', message: 'Activate your first 24-hour mining session!', timestamp: now + 5000 },
+                       ];
+                       newUserState.notifications.sort((a, b) => b.timestamp - a.timestamp);
+                  }
+            }
+
+             // --- Handle Daily Free Spins Reset (Applies to loaded or new state) ---
+             // Check if the last reset was before the start of today (UTC midnight)
+             if (newUserState.lastSpinResetTimestamp < startOfTodayUTC) {
+                  console.log("New day detected. Resetting free spins.");
+                  // Only add notification if the user was not brand new (i.e., state was loaded from firebase or localStorage)
+                   if (loadedSource !== 'defaults') {
+                      addNotification({ title: 'Daily Bonus', message: `Your ${DAILY_FREE_SPINS_COUNT} free spin${DAILY_FREE_SPINS_COUNT > 1 ? 's' : ''} ${DAILY_FREE_SPINS_COUNT > 1 ? 'are' : 'is'} ready!`, timestamp: now });
+                   }
+                   newUserState.dailyFreeSpins = DAILY_FREE_SPINS_COUNT;
+                   newUserState.lastSpinResetTimestamp = startOfTodayUTC; // Set reset time to start of today UTC
+             }
+
+
+            // --- Calculate Offline Earnings (Applies to loaded state - not 'defaults') ---
+             let earnedOffline = 0;
+             // Only calculate offline earnings if state was actually loaded from somewhere (not just defaulted)
+             if (loadedSource !== 'defaults') { // Check if 'loaded' object was populated from Firebase or localStorage
+                  // Ensure lastMiningUpdate is not in the future relative to when the app *thought* it last updated
+                  // This protects against potential clock issues or bugs in previous versions
+                 const effectiveStartTime = Math.min(now, newUserState.lastMiningUpdate);
+                  // Ensure mining was active at the effective start time
+                  const miningWasActive = effectiveStartTime < newUserState.miningActiveUntil;
+
+                  if (miningWasActive) {
+                      // Calculate time elapsed for earning, capped by both 'now' and 'miningActiveUntil'
+                      const effectiveEndTime = Math.min(now, newUserState.miningActiveUntil);
+                      const timeMiningOfflineMs = effectiveEndTime - effectiveStartTime;
+
+                      if (timeMiningOfflineMs > 0) {
+                           // Calculate current passive rate including referral bonus from *loaded* state referralCount
+                           // Ensure referralCount is a number for calculation
+                          const offlineReferralCount = parseInt(newUserState.referralCount) || 0;
+                          const offlinePassiveRatePerMs = BASE_PASSIVE_RATE_PER_MS * (1 + offlineReferralCount * (REFERRAL_SPEED_BONUS_PERCENT / 100));
+                           earnedOffline = timeMiningOfflineMs * offlinePassiveRatePerMs;
+                      }
+                 }
+             }
+
+            newUserState.btxBalance += earnedOffline;
+            newUserState.lastMiningUpdate = now; // Always update lastMiningUpdate to 'now' after calculation
+
+
+            // Assign the final state
+            userState = newUserState;
+
+            // --- Final Save and UI Update ---
+            // Save the final state (merging might have happened, offline earnings added, spins reset)
+             saveState(); // This will save to both localStorage and Firebase
+
+            // Show offline earnings if any (only if userState.uid is now set and earnings are significant)
+            // and the state wasn't completely new defaults
+            if (userState.uid && earnedOffline > 0.0000001 && loadedSource !== 'defaults' && loadedSource !== 'localStorageFallback') { // Don't show popup if loaded from fallback (might indicate connection issue)
+                 console.log(`Offline earnings: ${earnedOffline.toFixed(8)} BTX`);
+                 // Use a small timeout to ensure SweetAlert doesn't interfere with initial UI render
+                 // And only show it *once* after successful login/load per session.
+                 // The offlineEarningsShown flag ensures the popup only shows once *per session* per user.
+                 if (!sessionStorage.getItem(`offlineEarningsShown_${userState.uid}`)) {
+                      sessionStorage.setItem(`offlineEarningsShown_${userState.uid}`, 'true');
+                       // Notification is already added by addNotification inside the spins reset or welcome back logic within loadState.
+                       // No need to add duplicate notification popup here.
+                      setTimeout(() => {
+                          Swal.fire({
+                              title: 'Welcome Back!',
+                              html: `While you were away, you earned <strong>${earnedOffline.toFixed(8)} BTX</strong>. Check your notifications!`,
+                              icon: 'success',
+                              confirmButtonText: 'Awesome!'
+                          });
+                      }, 100);
+                 }
+            } else if (userState.uid) {
+                 // User logged in, no significant offline earnings or first login (loadedSource === 'defaults')
+                 console.log(`User logged in (${loadedSource}), no significant offline earnings or this was a new state.`);
+                 sessionStorage.setItem(`offlineEarningsShown_${userState.uid}`, 'true'); // Prevent showing it later in this session
+            }
+
+             // hideSpinner() is called inside auth.onAuthStateChanged after loadState awaits
+
+             console.log("State loading complete.");
+        }
+
+
+         // Function to get referral code from URL on load
+         let urlReferralCode = null;
+         function checkUrlForReferral() {
+             const params = new URLSearchParams(window.location.search);
+             if (params.has('ref')) {
+                 urlReferralCode = params.get('ref');
+                 console.log("Found referral code in URL:", urlReferralCode);
+                 // If currently in signup mode (handled by toggleAuthMode call on DOMContentLoaded),
+                 // populate the input field.
+                 if (!isLoginState && referralCodeInput) {
+                     referralCodeInput.value = urlReferralCode;
+                     // Optionally disable or make input readonly if auto-populated?
+                     // referralCodeInput.readOnly = true; // Or disable
+                 }
+             }
+         }
+
+
+        // --- UI Updates ---
+        function updateUI() {
+             if (!userState.uid) {
+                 console.warn("updateUI called when userState.uid is null. Showing default UI.");
+                 // Handle guest/logged out state UI
+                 if(miningBtxCounter) miningBtxCounter.textContent = '0.00000000';
+                 if(totalBalanceElement) totalBalanceElement.textContent = '$0.00';
+                 if(walletUsdtBalanceListElement) walletUsdtBalanceListElement.textContent = '0.00';
+                 if(walletUsdtValueListElement) walletUsdtValueListElement.textContent = '0.00';
+                 if(walletBtxBalanceListElement) walletBtxBalanceListElement.textContent = '0.00000000';
+                 if(btxPriceElement) btxPriceElement.textContent = 'Coming Soon';
+                 if(profileUsername) profileUsername.textContent = 'Guest';
+                 if(profileUID) profileUID.textContent = 'N/A'; // Show N/A when logged out
+                 if(referralLevelElement) referralLevelElement.textContent = 'Lvl 0';
+                 if(inviteCountElement) inviteCountElement.textContent = '0';
+                 if(speedBonusElement) speedBonusElement.textContent = '0';
+                 if(checkinStatus) checkinStatus.textContent = 'Login to Claim';
+                 if(spinStatus) spinStatus.textContent = 'Login to Spin';
+                 if(dailyCheckinBtn) dailyCheckinBtn.disabled = true;
+                 if(spinWheelBtn) spinWheelBtn.disabled = true;
+                 if(activateMiningBtn) {
+                     activateMiningBtn.disabled = true;
+                     activateMiningBtn.textContent = "Login to Mine";
+                 }
+                 if(miningStatusTimer) miningStatusTimer.classList.add('hidden');
+                 if(miningEndTimeDisplay) miningEndTimeDisplay.textContent = '';
+                 if(miningHeaderGreeting) miningHeaderGreeting.textContent = 'Guest';
+                 if(notificationIcon) {
+                     notificationIcon.classList.remove('text-yellow-500');
+                     notificationIcon.classList.add('text-blue-500'); // Reset notification icon color
+                 }
+                 if(notificationList) notificationList.innerHTML = '<li class="text-gray-400 text-center italic">No new notifications.</li>'; // Clear and set placeholder
+
+                 // Ensure intervals are stopped on logout
+                 stopPassiveMiningDisplay();
+                 if (miningStatusInterval) clearInterval(miningStatusInterval);
+                 if (checkinCooldownInterval) clearInterval(checkinCooldownInterval);
+
+                 // Ensure modals are hidden on logout (if any were open)
+                 hideWithdrawModal();
+                 hideDepositInfo();
+                 hideSpinWheelModal();
+                 hideProfileDetailsModal();
+                 hideNotificationModal();
+
+                 // Ensure current page is reset to mining or auth is shown
+                 // This is handled by onAuthStateChanged calling showPage if logged in,
+                 // or showing authSection if logged out.
+
+                 // Update News and Leaderboard placeholders if user logs out while on that page
+                 // (showPage handles the initial fetch/placeholder on navigation)
+                 renderLeaderboardList({}); // Render empty/placeholder leaderboard
+                 renderNewsList({}); // Render empty/placeholder news
+
+                 return;
+             }
+            try {
+                updateBalancesUI();
+                updateMiningUI(); // Updates mining button state and timer (includes header greeting)
+                updateProfileUI(); // Updates profile details and referral info
+                updateBonusButtonsUI(); // Updates check-in and spin wheel buttons/status
+                updateNotificationsUI(); // Update notification badge/icon state
+                // News and Leaderboard are updated when the page is shown via showPage
+                // updateLeaderboard(); // Now called by showPage
+                // fetchNewsForApp(); // Now called by showPage
+                // console.log("UI updated successfully.");
+            } catch (error) {
+                console.error("Error during updateUI:", error);
+                // Potentially show a non-blocking toast error or log
+            }
+        }
+
+        function updateBalancesUI() {
+             if (!userState.uid) return;
+             // Ensure balances are numbers
+             userState.btxBalance = parseFloat(userState.btxBalance) || 0;
+             userState.usdtBalance = parseFloat(userState.usdtBalance) || 0;
+
+            // Calculate total value (using placeholder BTX price)
+             const totalValue = userState.usdtBalance + (userState.btxBalance * BTX_PRICE_IN_USDT);
+             if(totalBalanceElement) totalBalanceElement.textContent = `$${totalValue.toFixed(2)}`;
+
+            // Update main balance display on mining page
+             if(miningBtxCounter) miningBtxCounter.textContent = userState.btxBalance.toFixed(8);
+
+            // Update wallet page balances
+             // Update USDT list item
+            if(walletUsdtBalanceListElement) walletUsdtBalanceListElement.textContent = userState.usdtBalance.toFixed(2);
+            if(walletUsdtValueListElement) walletUsdtValueListElement.textContent = userState.usdtBalance.toFixed(2); // USDT value is same as balance
+            // Update BTX list item
+            if(walletBtxBalanceListElement) walletBtxBalanceListElement.textContent = userState.btxBalance.toFixed(8);
+             // Set BTX price display
+            if(btxPriceElement) btxPriceElement.textContent = `$${BTX_PRICE_IN_USDT.toFixed(2)}`;
+        }
+
+        // Passive Mining Calculation & Display Update
+        let passiveMiningInterval = null;
+        let miningStatusInterval = null; // Separate interval for countdown display
+
+        function startPassiveMiningDisplay() {
+             // Prevent starting if already running or user not logged in
+            if (passiveMiningInterval !== null || !userState.uid) {
+                 return;
+            }
+
+             // Only start if mining is currently active based on the timer
+             const now = Date.now();
+             if (now < userState.miningActiveUntil) {
+                 console.log("Starting passive mining interval...");
+                 // Update BTX counter immediately before starting interval for accuracy
+                 // updateBalancesUI(); // Ensures the counter starts from the correct loaded value (Called by updateUI, which is called by showPage)
+
+                 passiveMiningInterval = setInterval(() => {
+                     const now = Date.now();
+                     // Only earn if mining is still active
+                     if (now < userState.miningActiveUntil) {
+                         const timeSinceLastUpdate = now - userState.lastMiningUpdate;
+
+                          // Calculate current passive rate including referral bonus from userState.referralCount (Simulated)
+                          // Ensure referralCount is a number
+                         const currentReferralCount = parseInt(userState.referralCount) || 0;
+                         const currentPassiveRatePerMs = BASE_PASSIVE_RATE_PER_MS * (1 + currentReferralCount * (REFERRAL_SPEED_BONUS_PERCENT / 100));
+
+                         // Calculate earnings for this tick
+                         // Cap earnings time by mining end and interval length
+                         const timeToEarnUntil = Math.min(now, userState.miningActiveUntil); // Cap total earning duration
+                         const actualTimeDelta = timeToEarnUntil - userState.lastMiningUpdate; // Time elapsed since last update, capped by mining end
+
+                         let earnedThisTick = 0;
+                         if (actualTimeDelta > 0) {
+                              // Ensure the time delta is positive before calculating
+                             earnedThisTick = actualTimeDelta * currentPassiveRatePerMs;
+                         }
+
+                         userState.btxBalance += earnedThisTick;
+                         userState.lastMiningUpdate = now; // Update timestamp
+
+                         // Update mining page counter only if visible and on the mining page
+                          const miningPage = document.getElementById('mining-page');
+                          if (miningBtxCounter && miningPage && !miningPage.classList.contains('hidden')) {
+                               // Use toFixed(8) for display, but internally keep full precision if possible (JS numbers are float64)
+                               // However, adding small increments repeatedly can cause floating point inaccuracies.
+                               // Saving to fixed precision might be better for consistency across sessions/devices.
+                               // Let's keep the current add += earnedThisTick and fix precision on display/save.
+                               miningBtxCounter.textContent = userState.btxBalance.toFixed(8);
+                          }
+
+                         // State is saved periodically by the main setInterval, and explicitly on mining end/actions
+                     } else {
+                          // Mining time has just run out within the tick
+                          console.log("Mining session expired within passive interval.");
+                          userState.lastMiningUpdate = now; // Final timestamp update before stopping
+                          stopPassiveMiningDisplay(); // Stop the interval, this also calls updateMiningUI
+                           // Add notification for mining end
+                          addNotification({ title: 'Mining Ended', message: 'Your 24-hour mining session has ended. Activate again to continue earning!', timestamp: now });
+                          saveState(); // Save state after adding notification
+                          updateNotificationsUI(); // Update notification icon/badge
+                     }
+
+                 }, 1000 / 60); // Update ~60 times per second for smooth calculation
+             } else {
+                  // If mining is not active on function call, ensure it's stopped and UI reflects inactive state
+                 stopPassiveMiningDisplay();
+             }
+        }
+
+         function stopPassiveMiningDisplay() {
+             if (passiveMiningInterval !== null) {
+                 clearInterval(passiveMiningInterval);
+                 passiveMiningInterval = null;
+                 console.log("Passive mining interval stopped.");
+                 // Ensure the display shows the correct balance after stopping
+                  if(miningBtxCounter) miningBtxCounter.textContent = userState.btxBalance.toFixed(8); // Final update with high precision
+                  // Also update wallet balances to be accurate after potential passive accumulation
+                  updateBalancesUI();
+                  updateMiningUI(); // Update button state (should show Activate)
+             }
+        }
+
+
+        function updateMiningUI() {
+             if (!userState.uid) return;
+
+            const now = Date.now();
+            const miningIsActive = now < userState.miningActiveUntil;
+            let timeRemaining = Math.max(0, userState.miningActiveUntil - now);
+
+            // Update mining header greeting
+            if(miningHeaderGreeting) miningHeaderGreeting.textContent = userState.username;
+
+
+            // Clear any existing timer intervals first
+             if (miningStatusInterval) {
+                 clearInterval(miningStatusInterval);
+                 miningStatusInterval = null;
+             }
+
+            if (miningIsActive) {
+                if(activateMiningBtn) {
+                     activateMiningBtn.disabled = true;
+                     activateMiningBtn.textContent = "Mining Active";
+                }
+                 if(miningStatusTimer) miningStatusTimer.classList.remove('hidden');
+                 if(miningEndTimeDisplay) miningEndTimeDisplay.textContent = formatTimeRemaining(timeRemaining); // Initial display
+
+                 // Start interval to update the countdown display
+                 miningStatusInterval = setInterval(() => {
+                     timeRemaining = Math.max(0, userState.miningActiveUntil - Date.now());
+                     if(miningEndTimeDisplay) miningEndTimeDisplay.textContent = formatTimeRemaining(timeRemaining);
+                     if (timeRemaining <= 1000) { // Check if remaining time is near zero
+                         // Allow a tiny delay to ensure the timer shows 00:00:00 briefly
+                         setTimeout(() => {
+                              if(miningEndTimeDisplay) miningEndTimeDisplay.textContent = '00:00:00';
+                              // Now stop the interval and update UI to inactive state
+                             if (miningStatusInterval) clearInterval(miningStatusInterval); // Clear again just in case
+                             miningStatusInterval = null;
+                             updateMiningUI(); // Call updateMiningUI again to switch to inactive state
+                         }, 50); // Small delay
+                     }
+                 }, 1000);
+
+                // Start passive mining display if it's not already running
+                // This interval handles adding to BTX balance
+                startPassiveMiningDisplay();
+
+            } else { // Mining is not active
+                 if(activateMiningBtn) {
+                     activateMiningBtn.disabled = false;
+                     activateMiningBtn.textContent = "Activate Mining (24 Hours)";
+                 }
+                 if(miningStatusTimer) miningStatusTimer.classList.add('hidden');
+                 if(miningEndTimeDisplay) miningEndTimeDisplay.textContent = ''; // Clear display
+
+                // Ensure passive mining is stopped
+                stopPassiveMiningDisplay(); // Redundant call if it was already stopped, but safe
+            }
+
+            // Update the displayed BTX counter with current balance
+            // When on mining page, passiveMiningInterval updates frequently.
+            // When not on mining page, updateBalancesUI handles the update when page loads.
+            // Calling updateBalancesUI here ensures consistency when mining starts/stops.
+             updateBalancesUI(); // Make sure counter is always up-to-date based on current state
+        }
+
+        function activateMining() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to activate mining.', 'info');
+                 return;
+             }
+             const now = Date.now();
+             // Check if mining is already active
+             if (now < userState.miningActiveUntil) {
+                 Swal.fire('Mining Already Active', 'Your mining session is already active.', 'info');
+                 updateMiningUI(); // Ensure UI is correct
+                 return;
+             }
+
+             // Activate mining for the next 24 hours
+             userState.miningActiveUntil = now + MINING_ACTIVE_DURATION_MS;
+             userState.lastMiningUpdate = now; // Reset last update time for accurate passive calculation
+
+             saveState(); // Save the new active until time
+             updateMiningUI(); // Update button state and start timer display
+             startPassiveMiningDisplay(); // Start the passive earning interval
+
+             Swal.fire('Mining Activated!', 'Your 24-hour mining session has started.', 'success');
+              // Add notification for activation
+             addNotification({ title: 'Mining Activated', message: 'Your 24-hour mining session has started. You are now earning BTX!', timestamp: now });
+             updateNotificationsUI(); // Update notification icon/badge
+        }
+
+         // Function to format time remaining (e.g., 23:59:59)
+         function formatTimeRemaining(ms) {
+             if (ms <= 0) return '00:00:00';
+             const totalSeconds = Math.floor(ms / 1000);
+             const seconds = totalSeconds % 60;
+             const minutes = Math.floor(totalSeconds / 60) % 60;
+             const hours = Math.floor(totalSeconds / 3600);
+
+             return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+         // Daily Check-in Logic
+        function dailyCheckin() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to claim daily check-in.', 'info');
+                 return;
+             }
+
+             const now = Date.now();
+             const timeSinceLastCheckin = now - userState.lastDailyCheckin;
+
+             if (userState.lastDailyCheckin !== 0 && timeSinceLastCheckin < CHECKIN_COOLDOWN_MS) {
+                 // Still in cooldown period
+                 const remaining = userState.lastDailyCheckin + CHECKIN_COOLDOWN_MS - now;
+                  Swal.fire('Wait', `You can claim your next bonus in: ${formatTimeRemaining(remaining)}`, 'warning');
+                 updateBonusButtonsUI(); // Ensure button is disabled and timer is correct
+                 return;
+             }
+
+             // Check if streak should be reset (if more than 48 hours since last checkin)
+              if (userState.lastDailyCheckin !== 0 && timeSinceLastCheckin > CHECKIN_STREAK_RESET_MS) {
+                  console.log("Check-in streak reset due to inactivity.");
+                  if (userState.dailyStreak > 0) { // Only add notification if streak was actually > 0
+                       addNotification({ title: 'Check-in Streak Reset', message: 'Your daily check-in streak was reset due to inactivity.', timestamp: now });
+                  }
+                   userState.dailyStreak = 0; // Reset streak *before* calculating reward for the new day 1
+
+              }
+
+             // Claim the reward for the current streak day (cycle through 0-6)
+             const streakDay = userState.dailyStreak % DAILY_CHECKIN_REWARDS.length; // 0-indexed day
+             const reward = DAILY_CHECKIN_REWARDS[streakDay];
+
+             userState.btxBalance += reward;
+             userState.lastDailyCheckin = now; // Update last checkin time
+             userState.dailyStreak++; // Increment streak for the next day
+
+             saveState(); // Save state
+             updateUI(); // Update balances and buttons
+
+             Swal.fire('Daily Bonus Claimed!', `You claimed ${reward.toFixed(2)} BTX (Day ${streakDay + 1}).`, 'success');
+              // Add notification for daily checkin
+              addNotification({ title: 'Daily Check-in Claimed', message: `You claimed ${reward.toFixed(2)} BTX for Day ${streakDay + 1}!`, timestamp: now });
+              updateNotificationsUI(); // Update notification icon/badge
+        }
+
+
+        function updateProfileUI() {
+             if (!userState.uid) return;
+            const level = getReferralLevel(userState.referralCount);
+             if(referralLevelElement) referralLevelElement.textContent = `Lvl ${level}`;
+             if(inviteCountElement) inviteCountElement.textContent = userState.referralCount;
+             // Display mining speed bonus percentage
+             const speedBonusPercent = userState.referralCount * REFERRAL_SPEED_BONUS_PERCENT;
+             if(speedBonusElement) speedBonusElement.textContent = speedBonusPercent;
+
+             // Display username and NUMERIC UID on the summary
+            if(profileUsername) profileUsername.textContent = userState.username;
+            if(profileUID) profileUID.textContent = userState.numericUserId || 'N/A'; // Show numeric ID
+
+             // Note: Profile details modal inputs are filled when the modal is shown
+        }
+
+         function showProfileDetailsModal() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to view your profile details.', 'info');
+                 return;
+             }
+
+             // Load current state into modal inputs
+             if(modalUsernameInput) modalUsernameInput.value = userState.username; // Readonly username
+             if(modalEmailInput) modalEmailInput.value = userState.email || ''; // Readonly email
+             if(modalRealNameInput) modalRealNameInput.value = userState.realName;
+             if(modalAgeInput) modalAgeInput.value = userState.age; // Age is stored as string
+             if(modalCountryInput) modalCountryInput.value = userState.country;
+             if(modalAddressInput) modalAddressInput.value = userState.address;
+
+             if(profileDetailsModal) profileDetailsModal.classList.remove('hidden');
+         }
+
+         function hideProfileDetailsModal() {
+             if(profileDetailsModal) profileDetailsModal.classList.add('hidden');
+             // Inputs are not cleared on hide, they will be repopulated from state on next show
+         }
+
+         function saveProfileDetails() {
+              if (!userState.uid) return; // Should not happen if modal requires login
+
+             // Update userState from modal inputs
+             if(modalRealNameInput) userState.realName = modalRealNameInput.value.trim();
+             if(modalAgeInput) userState.age = modalAgeInput.value.trim(); // Keep as string
+             if(modalCountryInput) userState.country = modalCountryInput.value.trim();
+             if(modalAddressInput) userState.address = modalAddressInput.value.trim();
+
+             saveState(); // Save the updated state
+
+             // Update profile UI (if modal is closed and profile page is visible)
+             updateProfileUI(); // Update the summary area
+
+             Swal.fire('Saved!', 'Your profile details have been updated.', 'success');
+             hideProfileDetailsModal();
+         }
+
+
+         let checkinCooldownInterval = null;
+
+
+         function updateBonusButtonsUI() {
+             if (!userState.uid) {
+                  // Ensure buttons are disabled and status messages are correct when logged out
+                 if(dailyCheckinBtn) dailyCheckinBtn.disabled = true;
+                 if(checkinStatus) checkinStatus.textContent = 'Login to Claim';
+                 if(spinWheelBtn) spinWheelBtn.disabled = true;
+                 if(spinStatus) spinStatus.textContent = 'Login to Spin';
+                 if(spinsLeftCountSpan) spinsLeftCountSpan.textContent = '0';
+                 // Use the constant directly for total spins display
+                 if(totalDailySpinsSpan) totalDailySpinsSpan.textContent = DAILY_FREE_SPINS_COUNT;
+                 // Clear existing checkin interval if user logs out while it's running
+                 if(checkinCooldownInterval) {
+                    clearInterval(checkinCooldownInterval);
+                    checkinCooldownInterval = null;
+                 }
+                 return;
+             }
+
+             const now = Date.now();
+
+             // Clear any existing checkin interval before potentially starting a new one
+             if(checkinCooldownInterval) {
+                 clearInterval(checkinCooldownInterval);
+                 checkinCooldownInterval = null;
+             }
+
+             // Daily Check-in
+             const timeSinceLastCheckin = now - userState.lastDailyCheckin;
+             const checkinCooldownRemaining = Math.max(0, userState.lastDailyCheckin + CHECKIN_COOLDOWN_MS - now);
+
+             if (userState.lastDailyCheckin === 0 || timeSinceLastCheckin >= CHECKIN_COOLDOWN_MS) {
+                 // Can claim now or cooldown finished
+                 if(dailyCheckinBtn) dailyCheckinBtn.disabled = false;
+                  // Display streak count (which might be 0 if reset)
+                 const displayStreak = userState.dailyStreak;
+                 if(checkinStatus) checkinStatus.textContent = `Claim Now (Day ${ (userState.dailyStreak % DAILY_CHECKIN_REWARDS.length) + 1} / Streak: ${displayStreak})`;
+             } else {
+                 // In cooldown period
+                 if(dailyCheckinBtn) dailyCheckinBtn.disabled = true;
+                 if(checkinStatus) checkinStatus.textContent = `Next in: ${formatTimeRemaining(checkinCooldownRemaining)}`; // Initial display
+
+                  // Start interval to update the countdown display
+                 checkinCooldownInterval = setInterval(() => {
+                     const remaining = Math.max(0, userState.lastDailyCheckin + CHECKIN_COOLDOWN_MS - Date.now());
+                     if(checkinStatus) checkinStatus.textContent = `Next in: ${formatTimeRemaining(remaining)}`;
+                     if(remaining <= 1000) { // Check if near zero
+                         clearInterval(checkinCooldownInterval);
+                         checkinCooldownInterval = null;
+                          setTimeout(() => updateBonusButtonsUI(), 1000); // Update UI after delay to reflect ready state
+                     }
+                 }, 1000);
+             }
+
+             // Spin Wheel (Based on daily free spins count)
+              // Update spin count display regardless of button state
+             if(spinsLeftCountSpan) spinsLeftCountSpan.textContent = userState.dailyFreeSpins;
+             // Use the constant directly for total spins display
+             if(totalDailySpinsSpan) totalDailySpinsSpan.textContent = DAILY_FREE_SPINS_COUNT;
+
+
+             if (userState.dailyFreeSpins > 0) {
+                 if(spinWheelBtn) spinWheelBtn.disabled = false;
+                 if(spinStatus) spinStatus.textContent = `Spin Now (${userState.dailyFreeSpins}/${DAILY_FREE_SPINS_COUNT})`;
+             } else {
+                 if(spinWheelBtn) spinWheelBtn.disabled = true;
+                 if(spinStatus) spinStatus.textContent = `No spins left (${userState.dailyFreeSpins}/${DAILY_FREE_SPINS_COUNT})`;
+             }
+         }
+
+        // Notification functions
+        function addNotification(notification) {
+             if (!userState.uid) return; // Don't add notifications if not logged in
+
+             // Ensure notification object has necessary properties
+             if (!notification.title || !notification.message) {
+                 console.error("Attempted to add invalid notification:", notification);
+                 return;
+             }
+             // Add timestamp if not present
+             if (!notification.timestamp) {
+                  notification.timestamp = Date.now();
+             }
+
+             userState.notifications.unshift(notification); // Add to the beginning of the array (newest first)
+             // Optionally limit the number of stored notifications
+             const maxNotifications = 20; // Example limit
+             if (userState.notifications.length > maxNotifications) {
+                  userState.notifications = userState.notifications.slice(0, maxNotifications);
+             }
+             // Save state immediately after adding notification (it's also saved periodically)
+             saveState();
+             updateNotificationsUI(); // Update the notification icon/badge
+        }
+
+        function updateNotificationsUI() {
+             if (!userState.uid || !notificationIcon) return;
+
+             // Simple simulation: Change icon color if there are notifications
+             // Check if notifications array is not empty and has items
+             const hasNotifications = userState.notifications && userState.notifications.length > 0;
+
+             if (hasNotifications) {
+                 notificationIcon.classList.add('text-yellow-500');
+                 notificationIcon.classList.remove('text-blue-500');
+             } else {
+                 notificationIcon.classList.remove('text-yellow-500');
+                 notificationIcon.classList.add('text-blue-500');
+             }
+             // In a real app, you'd manage read/unread status and update a badge count here.
+        }
+
+         function showNotificationModal() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to view notifications.', 'info');
+                 return;
+             }
+             if (!notificationModal || !notificationList) return;
+
+             // Populate the notification list in the modal
+             notificationList.innerHTML = ''; // Clear previous list
+
+             if (userState.notifications && userState.notifications.length > 0) {
+                 userState.notifications.sort((a, b) => b.timestamp - a.timestamp); // Ensure sorted newest first
+                 userState.notifications.forEach(notif => {
+                     const li = document.createElement('li');
+                     li.classList.add('notification-item');
+                      const date = notif.timestamp ? new Date(notif.timestamp).toLocaleString() : 'Unknown time';
+                     li.innerHTML = `
+                         <h5>${notif.title}</h5>
+                         <p>${notif.message}</p>
+                          <p class="text-xs text-gray-500 mt-1">${date}</p>
+                     `;
+                     notificationList.appendChild(li);
+                 });
+                  // In a real app, mark notifications as read here and update state
+                  // userState.unreadNotificationCount = 0;
+                  // updateNotificationsUI(); // Update badge/icon
+                  // saveState();
+             } else {
+                 // Display the placeholder text if no notifications
+                 const li = document.createElement('li');
+                 li.classList.add('text-gray-400', 'text-center', 'italic');
+                 li.textContent = 'No new notifications.';
+                 notificationList.appendChild(li);
+             }
+
+             notificationModal.classList.remove('hidden');
+         }
+
+         function hideNotificationModal() {
+             if (notificationModal) notificationModal.classList.add('hidden');
+         }
+
+
+        function getReferralLevel(count) {
+            let level = 0;
+            const tiers = Object.keys(referralTiers).map(Number).sort((a, b) => a - b); // Get keys as numbers and sort
+            for (let i = tiers.length - 1; i >= 0; i--) {
+                if (count >= tiers[i]) {
+                    level = referralTiers[tiers[i]];
+                    break;
+                }
+            }
+            return level;
+        }
+
+        async function copyInviteLink() {
+             if (!userState.uid || !userState.numericUserId) {
+                 Swal.fire('Login Required', 'You need to log in to get your referral link.', 'info');
+                 return;
+             }
+            // Use the numericUserId as the referral code
+            const referralCode = userState.numericUserId;
+            // IMPORTANT: Replace 'yourwebsite.com' with your actual website domain if hosting online
+            const inviteLink = `${window.location.origin}/?ref=${referralCode}`; // Example link format
+
+            try {
+                await navigator.clipboard.writeText(inviteLink);
+                Swal.fire('Copied!', `Your invite link: ${inviteLink}\nShare it to get bonuses!`, 'success');
+                 // In a real app, referralCount increases when someone *uses* this link to sign up *and* that signup is processed by a backend.
+                 // This simulation does not update the referrer's count automatically.
+            } catch (err) {
+                console.error('Failed to copy invite link: ', err);
+                 Swal.fire('Copy Failed', 'Could not copy the invite link.', 'error');
+            }
+        }
+
+
+        function showSpinWheelModal() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to spin the wheel.', 'info');
+                 return;
+             }
+             // Check if the user has spins available
+             if (userState.dailyFreeSpins <= 0) {
+                 Swal.fire('No Spins Left', `You have used all your ${DAILY_FREE_SPINS_COUNT} free spin${DAILY_FREE_SPINS_COUNT > 1 ? 's' : ''} for today. Check back tomorrow!`, 'warning');
+                 updateBonusButtonsUI(); // Ensure button is disabled
+                 // Ensure center button is disabled too if modal was previously open
+                 if (wheelCenterBtn) wheelCenterBtn.style.pointerEvents = 'none';
+                 // Allow the modal to show even if no spins, so the user can see the spin count.
+             }
+
+             // Reset wheel rotation smoothly (optional, but good practice)
+             if (wheelElement) {
+                 // Get current computed style to prevent jump on opening
+                 const currentTransform = window.getComputedStyle(wheelElement).getPropertyValue('transform');
+                 wheelElement.style.transition = 'none'; // Remove transition temporarily
+                 wheelElement.style.transform = currentTransform; // Apply current computed transform
+                 wheelElement.offsetHeight; // Force reflow/repaint
+                 // Re-add the transition for the next spin
+                 wheelElement.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+             }
+
+
+             if(spinWheelModal) spinWheelModal.classList.remove('hidden');
+
+             // Enable/Disable the clickable center div based on spin count
+             if (wheelCenterBtn) {
+                 if (userState.dailyFreeSpins > 0) {
+                      wheelCenterBtn.style.pointerEvents = 'auto';
+                      wheelCenterBtn.textContent = 'Spin';
+                      wheelCenterBtn.style.opacity = 1;
+                 } else {
+                      wheelCenterBtn.style.pointerEvents = 'none';
+                      wheelCenterBtn.textContent = 'Spin'; // Keep 'Spin' and dim
+                      wheelCenterBtn.style.opacity = 0.6;
+                 }
+             }
+
+             // Update spins left display within the modal immediately
+             if(spinsLeftCountSpan) spinsLeftCountSpan.textContent = userState.dailyFreeSpins;
+             if(totalDailySpinsSpan) totalDailySpinsSpan.textContent = DAILY_FREE_SPINS_COUNT;
+
+
+             // Listener for the spin button is added once on DOMContentLoaded
+        }
+
+        function hideSpinWheelModal() {
+             if(spinWheelModal) spinWheelModal.classList.add('hidden');
+             // Disable the clickable center div when modal is hidden
+             if (wheelCenterBtn) wheelCenterBtn.style.pointerEvents = 'none';
+             // Update spin status text on the main page when modal closes
+             updateBonusButtonsUI();
+        }
+
+         function getRewardSector(angleDeg) {
+             // Normalize angle to 0-360 range (clockwise from right)
+             const normalizedAngle = (angleDeg % 360 + 360) % 360;
+
+             for (const sector of spinSectors) {
+                 // Check if the normalized angle falls within this sector's original angle range [minDegree, maxDegree)
+                  // Handle the 315-360 (or 0) wrap-around case separately for clarity
+                  if (sector.minDegree === 315 && sector.maxDegree === 360) {
+                       if (normalizedAngle >= 315 || normalizedAngle < 0.1) { // Check >= 315 or very close to 0
+                            return sector;
+                       }
+                  } else if (normalizedAngle >= sector.minDegree && normalizedAngle < sector.maxDegree) {
+                     return sector;
+                 }
+             }
+
+
+             console.error(`Could not find sector for angle ${angleDeg} (normalized: ${normalizedAngle}). Falling back to first sector.`);
+             return spinSectors[0]; // Fallback
+         }
+
+
+         function handleSpin() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to spin the wheel.', 'info');
+                 return;
+             }
+              if (userState.dailyFreeSpins <= 0) {
+                 Swal.fire('No Spins Left', `You have used all your ${DAILY_FREE_SPINS_COUNT} free spin${DAILY_FREE_SPINS_COUNT > 1 ? 's' : ''} for today. Check back tomorrow!`, 'warning');
+                  updateBonusButtonsUI();
+                  if (wheelCenterBtn) {
+                      wheelCenterBtn.style.pointerEvents = 'none';
+                      wheelCenterBtn.textContent = 'Spin'; // Reset text
+                      wheelCenterBtn.style.opacity = 1; // Reset opacity
+                  }
+                 hideSpinWheelModal();
+                 return;
+             }
+
+             // Disable center button during spin
+             if (wheelCenterBtn) {
+                 wheelCenterBtn.style.pointerEvents = 'none';
+                 wheelCenterBtn.textContent = 'Spinning...';
+                 wheelCenterBtn.style.opacity = 0.6;
+             }
+
+             // Get the current computed rotation *before* decrementing spins
+             let currentRotationDeg = 0;
+              if (wheelElement) {
+                  const style = window.getComputedStyle(wheelElement);
+                  const transform = style.getPropertyValue('transform');
+                   if (transform && transform !== 'none') {
+                        // This complex parsing is needed for CSS transform matrix
+                        const matrixRegex = /matrix\((.+)\)/;
+                        const match = transform.match(matrixRegex);
+                        if (match && match[1]) {
+                            const values = match[1].split(', ').map(parseFloat);
+                            // Use atan2 to get the angle from the matrix
+                            currentRotationDeg = Math.atan2(values[1], values[0]) * (180 / Math.PI);
+                            // Normalize angle to 0-360
+                            currentRotationDeg = (currentRotationDeg % 360 + 360) % 360;
+                        } else {
+                             // Simple rotate() case (less common from browser computed styles)
+                             const rotateRegex = /rotate\((.+?)deg\)/;
+                              const rotateMatch = transform.match(rotateRegex);
+                              if (rotateMatch && rotateMatch[1]) {
+                                   currentRotationDeg = parseFloat(rotateMatch[1]);
+                                    currentRotationDeg = (currentRotationDeg % 360 + 360) % 360;
+                              } else {
+                                   console.warn("Could not parse current rotation style, assuming 0.");
+                                   currentRotationDeg = 0;
+                              }
+                        }
+                   }
+               } else {
+                    console.error("Wheel element not found.");
+                     if (wheelCenterBtn) {
+                         wheelCenterBtn.style.pointerEvents = 'auto';
+                         wheelCenterBtn.textContent = 'Spin';
+                         wheelCenterBtn.style.opacity = 1;
+                     }
+                    // Also re-enable spin button on the main page
+                     updateBonusButtonsUI();
+                    return;
+               }
+
+
+             userState.dailyFreeSpins--; // Decrement free spins BEFORE spinning
+             // Save state immediately after consuming a spin
+             saveState(); // This will also update userState.lastSpinTime implicitly via lastMiningUpdate
+
+             // Update the spins left display in the modal immediately
+             if(spinsLeftCountSpan) spinsLeftCountSpan.textContent = userState.dailyFreeSpins;
+
+
+             // Calculate a random landing angle within *any* sector.
+             // We need to pick a sector, then a random angle within that sector.
+             const targetSectorIndex = Math.floor(Math.random() * spinSectors.length);
+             const targetSector = spinSectors[targetSectorIndex];
+
+             // Calculate a random angle within the target sector's range (minDegree to maxDegree)
+             // Ensure landing angle is slightly away from the edges to avoid ambiguity.
+             const sectorRange = targetSector.maxDegree - targetSector.minDegree;
+             const padding = 5; // degrees padding from edges
+             const safeSectorRange = Math.max(0, sectorRange - 2 * padding);
+             const landingAngleInSector = targetSector.minDegree + padding + (Math.random() * safeSectorRange);
+
+              // Calculate final rotation needed relative to the original wheel's orientation (0deg)
+              // The pointer is "up", which is 270 degrees clockwise from "right" (0 degrees).
+              // We want the angle `landingAngleInSector` on the wheel to end up under the pointer (at 270 degrees screen angle).
+              // So, the desired final orientation of the wheel's 0-degree mark on the screen is (270 - landingAngleInSector).
+              let targetRotation = (270 - landingAngleInSector + 360) % 360;
+
+              // We need to rotate from the currentRotationDeg to this targetRotation, plus some full spins.
+              // The simple rotation needed to reach the target angle for the first time:
+              let rotationToTarget = targetRotation - currentRotationDeg;
+              if (rotationToTarget < 0) {
+                  rotationToTarget += 360; // Make it a positive clockwise rotation
+              }
+
+              // Add the desired number of full spins
+              const totalAddedRotation = rotationToTarget + SPIN_FULL_ROTATIONS * 360;
+
+             const finalRotation = currentRotationDeg + totalAddedRotation;
+
+
+             // Apply rotation
+             if (wheelElement) {
+                  // Temporarily disable transition to snap to current position before spinning
+                  // (Handled when modal opens)
+                 // wheelElement.style.transition = 'none';
+                 // wheelElement.style.transform = `rotate(${currentRotationDeg}deg)`;
+                 // wheelElement.offsetHeight; // Force reflow
+                 // Re-enable transition and apply the spin
+                 // wheelElement.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                 wheelElement.style.transform = `rotate(${finalRotation}deg)`;
+             }
+
+             // Wait for animation to finish
+             if (wheelElement) {
+                 wheelElement.addEventListener('transitionend', function onTransitionEnd() {
+                     // Get the actual final computed rotation style after transition
+                     const style = window.getComputedStyle(wheelElement);
+                     const transform = style.getPropertyValue('transform');
+                     let finalComputedRotationDeg = 0;
+                     // Parse the final rotation from the matrix
+                     const matrixRegex = /matrix\((.+)\)/;
+                     const match = transform.match(matrixRegex);
+                      if (match && match[1]) {
+                          const values = match[1].split(', ').map(parseFloat);
+                           finalComputedRotationDeg = Math.atan2(values[1], values[0]) * (180 / Math.PI);
+                           finalComputedRotationDeg = (finalComputedRotationDeg % 360 + 360) % 360; // Normalize
+                      } else {
+                           const rotateRegex = /rotate\((.+?)deg\)/;
+                           const rotateMatch = transform.match(rotateRegex);
+                           if (rotateMatch && rotateMatch[1]) {
+                                finalComputedRotationDeg = parseFloat(rotateMatch[1]);
+                                finalComputedRotationDeg = (finalComputedRotationDeg % 360 + 360) % 360; // Normalize
+                           } else {
+                                console.warn("Could not parse final rotation after transition, assuming 0.");
+                                finalComputedRotationDeg = 0;
+                           }
+                      }
+
+
+                     // Use the actual final rotation degree to find the sector under the pointer
+                     // The pointer is at 270 degrees (up). We want the sector whose original angle is now at 270.
+                     // We need to reverse the final rotation to find the original angle that landed under the pointer.
+                     // If the wheel rotated by finalComputedRotationDeg, the original angle X is now at (X + finalComputedRotationDeg) % 360.
+                     // We want the X such that (X + finalComputedRotationDeg) % 360 = 270.
+                     // X = (270 - finalComputedRotationDeg + 360) % 360. This is the effective angle under the pointer on the original wheel.
+                     const effectiveAngleAtPointer = (270 - finalComputedRotationDeg + 360) % 360;
+
+                     const wonSector = getRewardSector(effectiveAngleAtPointer); // Use the helper to find the sector
+                     const wonReward = wonSector ? wonSector.reward : 0;
+
+
+                     if (wonReward > 0) {
+                         userState.btxBalance += wonReward;
+                         Swal.fire('Congratulations!', `You won ${wonReward.toFixed(2)} BTX!`, 'success');
+                         addNotification({ title: 'Spin Wheel Win!', message: `You won ${wonReward.toFixed(2)} BTX from the Spin Wheel!`, timestamp: Date.now() });
+                     } else {
+                          Swal.fire('Try Again!', 'You used a free spin. Better luck next time!', 'info');
+                          addNotification({ title: 'Spin Wheel', message: 'You used a free spin.', timestamp: Date.now() });
+                     }
+
+                     userState.lastSpinTime = Date.now();
+                     saveState(); // Save state after adding reward/notification
+
+                     updateUI(); // Update balances and button state
+
+                     wheelElement.removeEventListener('transitionend', onTransitionEnd);
+                     if (wheelCenterBtn) {
+                         if (userState.dailyFreeSpins > 0) {
+                              wheelCenterBtn.style.pointerEvents = 'auto';
+                         } else {
+                              wheelCenterBtn.style.pointerEvents = 'none';
+                         }
+                         wheelCenterBtn.textContent = 'Spin'; // Reset text
+                         wheelCenterBtn.style.opacity = 1; // Reset opacity
+                     }
+                     updateBonusButtonsUI(); // Ensure the spin button on the main page is updated
+
+                     // Small delay before hiding modal
+                     setTimeout(() => {
+                         hideSpinWheelModal();
+                     }, 1500);
+
+                 }, { once: true });
+             }
+         }
+
+
+         function toggleDarkMode() {
+            userState.darkMode = !userState.darkMode;
+            applyDarkMode(userState.darkMode);
+            saveState();
+         }
+
+         function applyDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                 document.documentElement.classList.remove('dark');
+            }
+            if (darkModeToggle) {
+                 darkModeToggle.checked = isDark;
+            }
+         }
+
+        // Helper functions for modals
+        function showWithdrawModal() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to withdraw.', 'info');
+                 return;
+             }
+             if (withdrawModal) withdrawModal.classList.remove('hidden');
+        }
+
+        function hideWithdrawModal() {
+             if (withdrawModal) withdrawModal.classList.add('hidden');
+        }
+
+         function showDepositInfo() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to view deposit info.', 'info');
+                 return;
+             }
+             if (depositModal) depositModal.classList.remove('hidden');
+         }
+
+         function hideDepositInfo() {
+             if (depositModal) depositModal.classList.add('hidden');
+         }
+
+         async function copyAddressToClipboard(address) {
+             try {
+                 await navigator.clipboard.writeText(address);
+                 Swal.fire('Copied!', 'Deposit address copied to clipboard.', 'success');
+             } catch (err) {
+                 console.error('Failed to copy address: ', err);
+                 Swal.fire('Copy Failed', 'Could not copy the address.', 'error');
+             }
+         }
+
+
+        // --- Page Navigation ---
+        function showPage(pageId) {
+             console.log("App: Attempting to show page:", pageId);
+             // Stop any running intervals related to pages we might leave
+             stopPassiveMiningDisplay();
+             if (miningStatusInterval) {
+                 clearInterval(miningStatusInterval);
+                 miningStatusInterval = null;
+                 console.log("App: Stopped mining status timer interval.");
+             }
+             if (checkinCooldownInterval) {
+                 clearInterval(checkinCooldownInterval);
+                 checkinCooldownInterval = null;
+                  console.log("App: Stopped checkin cooldown interval.");
+             }
+             // Note: News fetching uses an 'on' listener, so it keeps running in the background,
+             // but its UI updates only affect the news page. This is okay for news.
+             // Leaderboard fetching also uses 'on' listener.
+
+            pages.forEach(page => {
+                page.classList.add('hidden');
+            });
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                 console.log("App: Page displayed:", pageId);
+
+                 // --- Page Specific Actions ---
+                 // Update UI elements relevant to the current page AFTER showing it
+                if (userState.uid) { // Only update user-specific UI if logged in
+                    updateUI(); // This updates balances, mining button, bonus buttons, profile info etc.
+                     // updateNotificationsUI(); // Called by updateUI
+                } else {
+                    updateUI(); // Still call to ensure guest/logged-out state UI is set
+                }
+
+
+                // Start specific intervals/updates *only* if the corresponding page is now visible
+                 switch (pageId) {
+                     case 'mining-page':
+                         // Passive mining display and countdown timer started by updateMiningUI which is called by updateUI
+                         // Bonus buttons UI (checkin/spin) updated by updateBonusButtonsUI which is called by updateUI
+                         break;
+                     case 'wallet-page':
+                         // Balances updated by updateBalancesUI which is called by updateUI
+                         break;
+                     case 'profile-page':
+                         // Profile info updated by updateProfileUI which is called by updateUI
+                         break;
+                     case 'news-page':
+                         // Fetch and display dynamic news and leaderboard
+                         fetchNewsForApp();
+                         fetchLeaderboardForApp();
+                         break;
+                     case 'games-page':
+                         // No dynamic content to load for the Coming Soon page
+                         break;
+                     default:
+                         console.warn(`App: Switched to unexpected page ID: ${pageId}`);
+                         break;
+                 }
+
+            } else {
+                 console.error(`App: Page element with ID "${pageId}" not found.`);
+                 // Fallback to mining page if target page is not found
+                 document.getElementById('mining-page').classList.remove('hidden');
+                 pageId = 'mining-page'; // Set pageId to the fallback page
+                 if (userState.uid) updateUI();
+                 else updateUI();
+                 // Start listeners for pages that always run in the background or needed for fallback
+                 fetchNewsForApp(); // Keep news fetching active
+                 fetchLeaderboardForApp(); // Keep leaderboard fetching active
+            }
+
+             // Update nav items active state LAST
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-page') === pageId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // --- Firebase Auth ---
+        let isLoginState = true; // true for login, false for signup
+
+        function toggleAuthMode() {
+            isLoginState = !isLoginState;
+             // Clear inputs when switching modes
+            emailInput.value = '';
+            passwordInput.value = '';
+            usernameInput.value = '';
+            confirmPasswordInput.value = '';
+            // Only pre-fill referral code if in signup state AND it came from URL
+            referralCodeInput.value = (!isLoginState && urlReferralCode) ? urlReferralCode : '';
+
+            if (isLoginState) {
+                if(authTitle) authTitle.textContent = 'Login';
+                if(authButton) authButton.textContent = 'Login';
+                if(toggleAuthLink) toggleAuthLink.textContent = 'Sign Up';
+                 if(usernameGroup) usernameGroup.hidden = true;
+                 if(confirmPasswordGroup) confirmPasswordGroup.hidden = true;
+                 if(referralCodeGroup) referralCodeGroup.hidden = true;
+                 // Clear the stored URL referral code state when explicitly switching back to login view
+                 urlReferralCode = null;
+            } else {
+                 if(authTitle) authTitle.textContent = 'Sign Up';
+                 if(authButton) authButton.textContent = 'Sign Up';
+                 if(toggleAuthLink) toggleAuthLink.textContent = 'Login';
+                 if(usernameGroup) usernameGroup.hidden = false;
+                 if(confirmPasswordGroup) confirmPasswordGroup.hidden = false;
+                 if(referralCodeGroup) referralCodeGroup.hidden = false;
+                 // If a referral code was found in the URL on load, pre-fill the input
+                 // This is handled by setting referralCodeInput.value = (!isLoginState && urlReferralCode) ? urlReferralCode : ''; above
+            }
+             console.log("Auth mode toggled to:", isLoginState ? 'Login' : 'Sign Up');
+        }
+
+        async function handleAuth() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                 Swal.fire('Input Error', 'Please enter email and password.', 'warning');
+                 return;
+            }
+
+            showSpinner(); // Show spinner before starting auth operation
+
+            try {
+                if (isLoginState) {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    // auth.onAuthStateChanged listener will handle post-login UI
+                } else {
+                     // Sign Up Logic
+                     const username = usernameInput.value.trim();
+                     const confirmPassword = confirmPasswordInput.value.trim();
+                     const referralCodeEntered = referralCodeInput.value.trim();
+
+                     if (!username) {
+                          hideSpinner();
+                         Swal.fire('Input Error', 'Please enter a username.', 'warning');
+                         return;
+                     }
+                     if (!/^[a-zA-Z0-9_-]{3,20}$/.test(username)) {
+                          hideSpinner();
+                          Swal.fire('Input Error', 'Username must be 3-20 characters long and contain only letters, numbers, underscores, and hyphens.', 'warning');
+                          return;
+                     }
+
+                     if (password.length < 6) {
+                          hideSpinner();
+                          Swal.fire('Input Error', 'Password must be at least 6 characters long.', 'warning');
+                          return;
+                     }
+                     if (password !== confirmPassword) {
+                          hideSpinner();
+                         Swal.fire('Input Error', 'Passwords do not match.', 'warning');
+                         return;
+                     }
+
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    // User signed up successfully.
+                    console.log("User signed up:", userCredential.user.uid);
+
+                     // The auth.onAuthStateChanged listener will be triggered automatically.
+                     // It will call loadState, which for a *new* user will initialize
+                     // userState with defaults (including numericUserId) and the referredBy
+                     // code (if urlReferralCode was present and used during signup).
+                     // loadState will then save this initial state to both RTDB and localStorage.
+                     // No need to explicitly initialize userState here.
+
+                    // Clear URL referral code state after successful signup
+                    urlReferralCode = null;
+
+
+                }
+            } catch (error) {
+                console.error("Firebase auth error:", error);
+                 hideSpinner(); // Hide spinner on auth failure
+                 Swal.fire(isLoginState ? 'Login Failed' : 'Sign Up Failed', error.message, 'error');
+            }
+        }
+
+        function handleLogout() {
+             console.log("Attempting to log out...");
+             showSpinner(); // Show spinner during logout process
+             auth.signOut().then(() => {
+                // Sign-out successful.
+                console.log("Firebase sign-out successful.");
+                // The onAuthStateChanged listener will be triggered automatically,
+                // handling state clearing and UI transition to auth screen.
+                 // Explicitly clear the temp referral code on logout
+                 urlReferralCode = null;
+
+             }).catch((error) => {
+                 // An error happened.
+                  console.error("Firebase logout error:", error);
+                  hideSpinner(); // Hide spinner on logout failure
+                  Swal.fire('Logout Failed', error.message, 'error');
+             });
+        }
+
+        // Listen for auth state changes
+        auth.onAuthStateChanged(async (user) => {
+            console.log("Auth state changed. User:", user ? user.uid : 'null');
+
+            if (user) {
+                // User is signed in.
+                console.log("User is signed in. Loading state...");
+                showSpinner(); // Ensure spinner is visible during async load
+
+                try {
+                    // Clear the offline earnings shown flag for the new session
+                    sessionStorage.removeItem(`offlineEarningsShown_${user.uid}`);
+
+                     // Load state and update userState using the Firebase UID
+                    // Wait for loadState to complete as it's asynchronous
+                    await loadState(user.uid, user.email);
+
+                    // Perform UI transitions and updates *after* state is loaded
+                    if(authSection) authSection.classList.add('hidden');
+                    if(mainAppSection) mainAppSection.classList.remove('hidden');
+                    showPage('mining-page'); // Default page on login
+                    // updateUI() is called by showPage
+                    // updateNotificationsUI is also called by updateUI
+
+                    console.log("Login successful. UI updated and main app shown.");
+
+                } catch (error) {
+                    console.error("Error during post-login state loading:", error);
+                    // Show setup failed error but *do not* automatically log out.
+                    Swal.fire('Setup Failed', 'An error occurred during login setup. Your data may not have fully loaded. Please try logging out and back in.', 'error');
+                     // Keep the main app section visible and attempt to show a page based on whatever state could be loaded or defaulted
+                     if(authSection) authSection.classList.add('hidden');
+                     if(mainAppSection) mainAppSection.classList.remove('hidden');
+                     showPage('mining-page'); // Attempt to show a page even if setup was bumpy
+                } finally {
+                    hideSpinner(); // Always hide spinner after loadState promise settles
+                }
+
+            } else {
+                // User is signed out.
+                console.log("User is signed out. Resetting UI.");
+                 // Reset userState to default/guest state when logged out
+                 userState = {
+                    uid: null,
+                    numericUserId: null,
+                    referredBy: null,
+                    email: null,
+                    username: 'Guest',
+                    realName: '', country: '', address: '', age: '',
+                    btxBalance: 0.00,
+                    usdtBalance: 5.00,
+                    lastMiningBonusClaim: 0,
+                    miningActiveUntil: 0,
+                    lastMiningUpdate: Date.now(),
+                    referralCount: 0,
+                    lastDailyCheckin: 0,
+                    dailyStreak: 0,
+                    lastSpinTime: 0,
+                    dailyFreeSpins: 0, // Reset spins on logout
+                    lastSpinResetTimestamp: 0, // Reset timestamp
+                    darkMode: userState.darkMode, // Keep dark mode preference
+                    notifications: [], // Clear notifications on logout
+                };
+                 // Stop all intervals on logout
+                 stopPassiveMiningDisplay();
+                 if (miningStatusInterval) clearInterval(miningStatusInterval);
+                 if (checkinCooldownInterval) clearInterval(checkinCooldownInterval);
+
+                if(authSection) authSection.classList.remove('hidden');
+                if(mainAppSection) mainAppSection.classList.add('hidden');
+                // Reset auth form inputs and state
+                toggleAuthMode(); // Ensure it's in login state view and clears inputs
+                 updateUI(); // Update UI to show logged out state
+                 hideSpinner(); // Hide spinner after logout processing
+                 console.log("UI reset to auth screen.");
+            }
+        });
+
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+             console.log("DOM Content Loaded. Adding Event Listeners.");
+
+             // Check URL for referral code FIRST
+             checkUrlForReferral();
+
+             // Ensure auth fields visibility is correct on initial load (defaults to login view)
+             // This also populates the referral code if it's in the URL and the mode is signup.
+             toggleAuthMode(); // Call once to set initial state and UI
+
+            // Auth Listeners
+            if(authButton) authButton.addEventListener('click', handleAuth);
+            if(toggleAuthLink) toggleAuthLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleAuthMode();
+            });
+             // Allow pressing Enter in auth fields to trigger auth
+             if(emailInput) emailInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+             if(passwordInput) passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+              // Added for signup fields
+             if(usernameInput) usernameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+             if(confirmPasswordInput) confirmPasswordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+             if(referralCodeInput) referralCodeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+
+
+            // Navigation Listeners
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = item.getAttribute('data-page');
+                     // Only trigger showPage if it's a different page or forced update needed
+                     // Checking active class prevents redundant calls
+                     if (!item.classList.contains('active')) {
+                          showPage(pageId);
+                     } else {
+                          console.log(`App: Already on page: ${pageId}. No action.`);
+                     }
+                });
+            });
+
+            // Mining Page Listeners
+            if(activateMiningBtn) activateMiningBtn.addEventListener('click', activateMining);
+             if(dailyCheckinBtn) dailyCheckinBtn.addEventListener('click', dailyCheckin);
+             if(spinWheelBtn) spinWheelBtn.addEventListener('click', showSpinWheelModal);
+             if(notificationIcon) notificationIcon.addEventListener('click', showNotificationModal);
+
+            // Wallet Page Listeners
+             if (depositBtnWallet) {
+                depositBtnWallet.addEventListener('click', showDepositInfo);
+             } else {
+                 console.error("Deposit button not found on wallet page.");
+             }
+             // Note: Withdraw button is disabled in HTML
+
+
+            // Deposit Modal Listeners
+             if(copyDepositAddressModalBtn) copyDepositAddressModalBtn.addEventListener('click', () => copyAddressToClipboard(USDT_DEPOSIT_ADDRESS));
+             if(simulateDepositBtn) simulateDepositBtn.addEventListener('click', simulateDeposit);
+             if(simulateDepositAmountSpan) simulateDepositAmountSpan.textContent = USDT_DEPOSIT_AMOUNT_SIMULATED;
+
+             // Close modals on click outside
+             if(depositModal) depositModal.addEventListener('click', (e) => { if (e.target === depositModal) hideDepositInfo(); });
+             if(withdrawModal) withdrawModal.addEventListener('click', (e) => { if (e.target === withdrawModal) hideWithdrawModal(); });
+             if(notificationModal) notificationModal.addEventListener('click', (e) => { if (e.target === notificationModal) hideNotificationModal(); });
+             if(spinWheelModal) spinWheelModal.addEventListener('click', (e) => { if (e.target === spinWheelModal) hideSpinWheelModal(); });
+             if (profileDetailsModal) profileDetailsModal.addEventListener('click', (e) => { if (e.target === profileDetailsModal) hideProfileDetailsModal(); });
+
+
+            // Spin Wheel Modal Listeners
+             if (wheelCenterBtn) {
+                wheelCenterBtn.addEventListener('click', handleSpin);
+                wheelCenterBtn.style.pointerEvents = 'none'; // Start disabled until modal is shown/enabled
+              } else {
+                   console.error("Wheel center button not found.");
+              }
+
+             // Set the total daily spins display in the modal using the constant
+             if (totalDailySpinsSpan) {
+                 totalDailySpinsSpan.textContent = DAILY_FREE_SPINS_COUNT;
+             }
+
+
+            // Profile Page Listeners
+             if (profileSummary) {
+                profileSummary.addEventListener('click', showProfileDetailsModal);
+             }
+             // Profile Details Modal Listeners
+             if (saveProfileDetailsBtn) saveProfileDetailsBtn.addEventListener('click', saveProfileDetails);
+             if (cancelProfileDetailsBtn) cancelProfileDetailsBtn.addEventListener('click', hideProfileDetailsModal);
+
+
+            if(copyInviteLinkBtn) copyInviteLinkBtn.addEventListener('click', copyInviteLink);
+            if(darkModeToggle) darkModeToggle.addEventListener('change', toggleDarkMode);
+            if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+
+            // --- Initial Setup ---
+             // applyDarkMode is called by onAuthStateChanged
+             // Firebase auth state listener handles initial UI display and state loading
+             // showPage, updateUI, and interval starts are handled by onAuthStateChanged
+
+             // Set USDT deposit address input value in modal
+             if (depositAddressModalInput) {
+                depositAddressModalInput.value = USDT_DEPOSIT_ADDRESS;
+             }
+
+             // The rest of the UI initialization happens within the onAuthStateChanged listener
+             // once the user's login status and state are determined and loaded.
+        });
+
+        // Simulate Deposit function
+        function simulateDeposit() {
+             if (!userState.uid) {
+                 Swal.fire('Login Required', 'You need to log in to deposit.', 'info');
+                 return;
+             }
+
+             userState.usdtBalance += USDT_DEPOSIT_AMOUNT_SIMULATED;
+             saveState();
+             updateBalancesUI(); // Update wallet balance display
+
+             hideDepositInfo(); // Close the deposit modal
+             Swal.fire('Deposit Simulated!', `$${USDT_DEPOSIT_AMOUNT_SIMULATED} USDT added to your balance.`, 'success');
+
+             // Add notification for simulated deposit
+             addNotification({ title: 'Deposit Simulated', message: `$${USDT_DEPOSIT_AMOUNT_SIMULATED} USDT has been added to your balance (simulation).`, timestamp: Date.now() });
+             // updateNotificationsUI() and saveState() are called by addNotification
+        }
+
+        // --- News Fetching and Display ---
+
+        // Keep a reference to the Firebase listener so we can potentially detach it later if needed
+        let newsFirebaseListener = null;
+
+        function fetchNewsForApp() {
+             if (!newsListElement) {
+                 console.error("App: News list element not found.");
+                 return;
+             }
+
+             // Remove previous listener if exists before attaching a new one (important for 'on')
+             if (newsFirebaseListener) {
+                  newsRef.off('value', newsFirebaseListener);
+                  newsFirebaseListener = null;
+                   console.log("App: Detached old news listener.");
+             }
+
+             // Show loading state
+             newsListElement.innerHTML = '<p class="text-gray-400 text-center italic">Loading news...</p>';
+             // Use main spinner only if on the news page
+             const newsPage = document.getElementById('news-page');
+             if(newsPage && !newsPage.classList.contains('hidden')) {
+                  showSpinner();
+             }
+
+
+             console.log("App: Attaching news listener...");
+
+             // Attach a new listener
+             // Order by timestamp descending using orderByChild and reverse client-side
+             newsFirebaseListener = newsRef.on('value', (snapshot) => {
+                 console.log("App: News data received from Firebase.");
+                 const newsData = snapshot.val();
+                 renderNewsList(newsData);
+                  // Hide spinner only if on the news page
+                  if(newsPage && !newsPage.classList.contains('hidden')) {
+                       hideSpinner();
+                  }
+             }, (error) => {
+                 console.error("App: Error fetching news:", error);
+                 if (newsListElement) {
+                      newsListElement.innerHTML = '<p class="text-red-400 text-center">Error loading news.</p>';
+                 }
+                  if(newsPage && !newsPage.classList.contains('hidden')) {
+                       hideSpinner();
+                  }
+                 Swal.fire('Error', 'Failed to load news.', 'error');
+             });
+        }
+
+        function renderNewsList(newsData) {
+             if (!newsListElement) return;
+
+             newsListElement.innerHTML = ''; // Clear current list
+
+             if (newsData) {
+                 // Convert object to array and sort by timestamp descending (newest first)
+                 const newsArray = Object.keys(newsData).map(key => ({ id: key, ...newsData[key] }));
+                 newsArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); // Sort by timestamp (newest first), handle missing timestamp
+
+
+                 if (newsArray.length > 0) {
+                     newsArray.forEach(item => {
+                         const newsItemDiv = document.createElement('div');
+                         newsItemDiv.classList.add('news-item');
+
+                         let itemContent = '';
+
+                         // Add image if imageUrl exists and is a non-empty string
+                         if (item.imageUrl && typeof item.imageUrl === 'string' && item.imageUrl.trim() !== '') {
+                              itemContent += `<img src="${item.imageUrl.trim()}" alt="News Image" onerror="this.style.display='none';">`; // Add onerror to hide broken images
+                         }
+
+                         // Add title and body
+                         itemContent += `
+                             <h4>${item.title || 'No Title'}</h4>
+                             <p>${item.body || 'No content'}</p>
+                         `;
+
+                         // Add timestamp if it exists and is a valid number
+                         if (item.timestamp && typeof item.timestamp === 'number') {
+                             try {
+                                  const date = new Date(item.timestamp);
+                                  // Check if date is valid before formatting
+                                   if (!isNaN(date.getTime())) {
+                                     itemContent += `<span class="news-timestamp">${date.toLocaleString()}</span>`;
+                                  }
+                              } catch (e) {
+                                   console.error("App: Error formatting news timestamp:", item.timestamp, e);
+                              }
+                         }
+
+                         newsItemDiv.innerHTML = itemContent;
+                         newsListElement.appendChild(newsItemDiv);
+                     });
+                 } else {
+                     // No news found message
+                     newsListElement.innerHTML = '<p class="text-gray-400 text-center italic">No news items found.</p>';
+                 }
+             } else {
+                 // No news data at all message
+                 newsListElement.innerHTML = '<p class="text-gray-400 text-center italic">No news items found.</p>';
+             }
+              console.log(`App: News list updated. Displayed ${newsData ? Object.keys(newsData).length : 0} items.`);
+        }
+
+
+        // --- Leaderboard Fetching and Display ---
+
+        let leaderboardFirebaseListener = null;
+
+         function fetchLeaderboardForApp() {
+              if (!leaderboardListElement) {
+                  console.error("App: Leaderboard list element not found.");
+                  return;
+              }
+
+             // Remove previous listener if exists
+             if (leaderboardFirebaseListener) {
+                 leaderboardRef.off('value', leaderboardFirebaseListener);
+                 leaderboardFirebaseListener = null;
+                  console.log("App: Detached old leaderboard listener.");
+             }
+
+              // Show loading state
+             leaderboardListElement.innerHTML = '<p class="text-gray-400 text-center italic">Loading leaderboard...</p>';
+             // Use main spinner only if on the news page (which contains the leaderboard)
+              const newsPage = document.getElementById('news-page');
+              if(newsPage && !newsPage.classList.contains('hidden')) {
+                   showSpinner();
+              }
+
+
+              console.log("App: Attaching leaderboard listener...");
+
+              // Attach a new listener
+              // Fetch data from the /leaderboard path
+              leaderboardFirebaseListener = leaderboardRef.on('value', (snapshot) => {
+                 console.log("App: Leaderboard data received from Firebase.");
+                 const leaderboardData = snapshot.val();
+                 renderLeaderboardList(leaderboardData);
+                 // Hide spinner only if on the news page
+                  if(newsPage && !newsPage.classList.contains('hidden')) {
+                       hideSpinner();
+                  }
+
+              }, (error) => {
+                  console.error("App: Error fetching leaderboard:", error);
+                   if (leaderboardListElement) {
+                       leaderboardListElement.innerHTML = '<p class="text-red-400 text-center">Error loading leaderboard.</p>';
+                   }
+                   if(newsPage && !newsPage.classList.contains('hidden')) {
+                       hideSpinner();
+                   }
+                  Swal.fire('Error', 'Failed to load leaderboard.', 'error');
+              });
+         }
+
+
+         function renderLeaderboardList(leaderboardData) {
+              if (!leaderboardListElement) return;
+
+             leaderboardListElement.innerHTML = ''; // Clear current list
+
+             if (leaderboardData) {
+                 // Convert object to array and sort by BTX balance descending (highest first)
+                 const leaderboardArray = Object.keys(leaderboardData).map(key => ({ id: key, ...leaderboardData[key] }));
+                 // Ensure btxBalance is treated as a number for sorting
+                 leaderboardArray.sort((a, b) => (parseFloat(b.btxBalance) || 0) - (parseFloat(a.btxBalance) || 0));
+
+                 if (leaderboardArray.length > 0) {
+                     leaderboardArray.forEach((item, index) => {
+                         const listItem = document.createElement('div');
+                         listItem.classList.add('leaderboard-item'); // Use the existing app-side class
+
+                          const displayUsername = item.username || 'No Username';
+                          const displayBtx = parseFloat(item.btxBalance) || 0;
+
+                         listItem.innerHTML = `
+                             <div class="rank">${index + 1}</div>
+                             <div class="username">${displayUsername}</div>
+                             <div class="btx">${displayBtx.toFixed(8)} BTX</div>
+                         `;
+                         leaderboardListElement.appendChild(listItem);
+                     });
+                 } else {
+                     // No leaderboard entries message
+                     leaderboardListElement.innerHTML = '<p class="text-gray-400 text-center italic">Leaderboard is empty.</p>';
+                 }
+
+             } else {
+                  // No leaderboard data at all message
+                  leaderboardListElement.innerHTML = '<p class="text-gray-400 text-center italic">Leaderboard is empty.</p>';
+             }
+             console.log(`App: Leaderboard list updated. Displayed ${leaderboardData ? Object.keys(leaderboardData).length : 0} items.`);
+         }
+
+
+        // Save state periodically (e.g., every 30 seconds) and before window close
+        // This ensures state is synced even if user doesn't perform an action that triggers saveState
+        setInterval(saveState, 30000); // Save state every 30 seconds
+        console.log("App: Periodic save interval started (30s).");
+
+        window.addEventListener('beforeunload', saveState); // Save state when the user leaves the page
+        console.log("App: beforeunload listener added.");
+
+
+    </script>
+
+</body>
+</html>
